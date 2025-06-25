@@ -69,21 +69,35 @@ def automacao_rfv():
             print(f"Não foi possível encontrar o nome do cliente para {cliente}.")
             continue
         
-        click_dropdown_areavitals = WebDriverWait(driver, 60).until(
-    EC.element_to_be_clickable((By.XPATH, '/html/body/app/sitemap/div/div/div[2]/my-fleet/div/involve-accordion-group/involve-accordion[2]/div/div[2]/div/involve-tree/cdk-virtual-scroll-viewport/div[1]/div[1]/div[1]/involve-icon'))
-)
-        click_dropdown_areavitals.click()
-        print("Dropdown de área vitals clicado com sucesso.")
+               
         
-        system_status = WebDriverWait(driver, 60).until(
-    EC.element_to_be_clickable((By.XPATH, '/html/body/app/sitemap/div/div/div[2]/my-fleet/div/involve-accordion-group/involve-accordion[2]/div/div[2]/div/involve-tree/cdk-virtual-scroll-viewport/div[1]/div[5]/div[2]/involve-tree-leaf/div'))
-)   
+        
+         
+        try:
+            area_vitals_h4 = WebDriverWait(driver, 30).until(
+        EC.presence_of_element_located((
+            By.XPATH,
+            '//system-status-tile-v2//involve-tile-header-button'
+        ))
+    )
+            area_vitals_h4.click()
+            print("Área Vitals encontrada e clicada com sucesso.")
+        except TimeoutException:
+            print("Não foi possível encontrar a área Vitals.")
+          
+               
+        system_status = WebDriverWait(driver, 30).until(
+        EC.presence_of_element_located((
+            By.CLASS_NAME,
+            'ng-star-inserted')))       
+  
         print('Clicando no status do sistema...')
+        time.sleep(2)
         system_status.click()
         print("Status do sistema clicado com sucesso.")
         
         export = WebDriverWait(driver, 60).until(
-    EC.element_to_be_clickable((By.XPATH, '//*[@id="1-333-68"]/system-status-tile-v2/involve-tile/div/div[2]/involve-tile-content/involve-toolbar/div/div/involve-datasource-export/involve-menu/div/button'))
+    EC.element_to_be_clickable((By.XPATH, '//system-status-tile-v2//involve-datasource-export//button'))
 )   
         export.click()
         print("Exportando dados...")
