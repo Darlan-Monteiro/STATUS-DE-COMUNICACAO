@@ -19,7 +19,6 @@ def config_navegador():
     dsp_automation.add_argument(caminho_user_rfv)
     driver = webdriver.Chrome(service=s, options=dsp_automation)
     driver.get(site_rfv)
-    time.sleep(20)  
     return driver
 
 
@@ -35,20 +34,15 @@ def automacao_rfv():
         try:
             dropdown_abrir = WebDriverWait(driver, 120).until(
                 EC.visibility_of_element_located((By.XPATH, '//*[@id="involve-select-0"]/div[1]/input'))
-            )
-            
-            time.sleep(2)  
+            )  
             dropdown_abrir.click()
-            time.sleep(1)
             dropdown_abrir.clear()
             time.sleep(1)
 
             print(f"Procurando cliente: {cliente}")
             dropdown_abrir.send_keys(cliente)
-            time.sleep(2)  
+            time.sleep(1)  
             dropdown_abrir.send_keys(Keys.ENTER)
-            time.sleep(3) 
-            
             print(f"Cliente {cliente} processado com sucesso.")
             
         except TimeoutException:
@@ -62,7 +56,7 @@ def automacao_rfv():
             click_nome_cliente = WebDriverWait(driver, 120).until(
                 EC.element_to_be_clickable((By.XPATH, '//*[contains(@class, "involve-tree-node")]/h4'))
             )
-            time.sleep(2)
+            time.sleep(1)
             click_nome_cliente.click()
             print(f"Nome do cliente {cliente} encontrado e clicado com sucesso.")
         except TimeoutException:
@@ -74,40 +68,63 @@ def automacao_rfv():
         
          
         try:
-            area_vitals_h4 = WebDriverWait(driver, 30).until(
-        EC.presence_of_element_located((
-            By.XPATH,
-            '//system-status-tile-v2//involve-tile-header-button'
-        ))
-    )
-            area_vitals_h4.click()
-            print("Área Vitals encontrada e clicada com sucesso.")
+            area_vitals_h4 = WebDriverWait(driver, 10).until(
+    EC.presence_of_element_located((
+        By.XPATH,
+        '//div[contains(@class, "cdk-virtual-scroll-content-wrapper")]//h4[normalize-space()="Area Vitals" or normalize-space()="Fleet Status"]'
+    ))
+)
+
+            if "Area Vitals" in area_vitals_h4.text or "Fleet Status" in area_vitals_h4.text:
+                time.sleep(1)
+                area_vitals_h4.click()
+                print("Área Vitals encontrada e clicada com sucesso.")
         except TimeoutException:
             print("Não foi possível encontrar a área Vitals.")
+            continue
+            
+            
           
-               
-        system_status = WebDriverWait(driver, 30).until(
-        EC.presence_of_element_located((
-            By.CLASS_NAME,
-            'ng-star-inserted')))       
-  
-        print('Clicando no status do sistema...')
-        time.sleep(2)
-        system_status.click()
-        print("Status do sistema clicado com sucesso.")
+        try: 
+            system_status = WebDriverWait(driver, 10).until(
+            EC.presence_of_element_located((
+                By.CLASS_NAME,
+                'menu-button')))       
+    
+            print('Clicando no status do sistema...')
+            time.sleep(1)
+            system_status.click()
+            print("Status do sistema clicado com sucesso.")
+        except TimeoutException:
+            print("Não foi possível encontrar o status do sistema.")
+            continue
         
-        export = WebDriverWait(driver, 60).until(
-    EC.element_to_be_clickable((By.XPATH, '//system-status-tile-v2//involve-datasource-export//button'))
-)   
-        export.click()
-        print("Exportando dados...")
+        try:
+            export = WebDriverWait(driver, 10).until(
+        EC.element_to_be_clickable((By.XPATH, '//system-status-tile-v2//involve-datasource-export//button'))
+    )   
+            time.sleep(1)
+            export.click()
+            print("Exportando dados...")
+            
+        except TimeoutException:
+            print("Não foi possível encontrar o botão de exportação.")
+            continue
         
-        xlsx = WebDriverWait(driver, 60).until(
-    EC.element_to_be_clickable((By.CLASS_NAME, 'overflow-auto'))
-)
-        if "XLSX" in xlsx.text:
-            xlsx.click()
-            print("Formato XLSX selecionado com sucesso.")
+        try:
+            xlsx = WebDriverWait(driver, 10).until(
+        EC.element_to_be_clickable((By.CLASS_NAME, 'overflow-auto'))
+    )
+            if "XLSX" in xlsx.text:
+                time.sleep(1)
+                xlsx.click()
+                print("Formato XLSX selecionado com sucesso.")
+        except TimeoutException:
+            print("Não foi possível encontrar o formato XLSX.")
+            continue
+        
+        time.sleep(5)
+    
 
          
 automacao_rfv()
