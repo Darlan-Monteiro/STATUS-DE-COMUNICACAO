@@ -1,7 +1,7 @@
 import os
 import shutil
 
-# caminho da pasta de origem (Downloads)
+# caminho da pasta de origem
 pasta_origem = os.path.expanduser('~/Downloads')
 
 # caminho da pasta de destino

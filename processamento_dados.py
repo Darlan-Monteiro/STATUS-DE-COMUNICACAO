@@ -2,6 +2,7 @@ import pandas as pd
 from glob import glob
 from dotenv import load_dotenv
 import os
+import shutil
 
 load_dotenv()
 caminho_bdrfv = os.getenv('caminho_bdrfv')
@@ -32,6 +33,21 @@ def remover_separador(separador): # função que tem como objetivo remover os 8 
         return separador[-8:].strip()
     
 def processar_dados(): # função principal deste código
+    
+    # caminho da pasta de origem
+    pasta_origem = os.path.expanduser('~/Downloads')
+    pasta_destino = r'C:\Users\700543\Sotreq\Darlan Monteiro - Desenvolvimento\status_project\STATUS-DE-COMUNICACAO\bd_rfv'  # alterarr caminho
+    os.makedirs(pasta_destino, exist_ok=True)
+    # percorre os arquivos na pasta de origem
+    for arquivo in os.listdir(pasta_origem):
+        if arquivo.endswith('.xlsx') and 'system status' in arquivo.lower():
+            origem = os.path.join(pasta_origem, arquivo)
+            destino = os.path.join(pasta_destino, arquivo)
+            # move o arquivo
+            shutil.move(origem, destino)
+            print(f'Movido: {arquivo}')
+    
+    
     bases_concat = ler_base()
     ativos = ler_planilha_ativos()
     
