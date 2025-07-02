@@ -23,7 +23,9 @@ def config_navegador():
 
 def automacao_rfv(): # função principal para automatizar o processo de exportação de dados do RFV
     driver = config_navegador()
-    base_clientes = pl.read_excel(r'C:\Users\700543\Sotreq\Darlan Monteiro - Desenvolvimento\status_project\STATUS-DE-COMUNICACAO\clientes.xlsx')
+    caminho_base_cleinte = os.getenv('base_clientes')
+    base_cliente = caminho_base_cleinte
+    base_clientes = pl.read_excel(base_cliente)
     coluna_clientes = 'Clientes'
     clientes = base_clientes[coluna_clientes].to_list()
     
