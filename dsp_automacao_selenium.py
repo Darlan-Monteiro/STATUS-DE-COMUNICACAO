@@ -17,7 +17,7 @@ def config_navegador():
     s = Service(r'./msedgedriver.exe')
     dsp_automation = webdriver.EdgeOptions()
     dsp_automation.add_argument(caminho_user_chorme)
-    driver = webdriver.Chrome(service=s, options=dsp_automation)
+    driver = webdriver.Edge(service=s, options=dsp_automation)
     driver.get(site_dsp)
     return driver
 

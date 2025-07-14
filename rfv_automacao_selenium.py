@@ -15,9 +15,9 @@ def config_navegador():
     caminho_user_rfv = os.getenv('caminho_user_rfv')
     site_rfv = os.getenv('site_rfv')
     s = Service(r'./msedgedriver.exe')
-    dsp_automation = webdriver.EdgeOptions()
-    dsp_automation.add_argument(caminho_user_rfv)
-    driver = webdriver.Chrome(service=s, options=dsp_automation)
+    rfv_automation = webdriver.EdgeOptions()
+    rfv_automation.add_argument(caminho_user_rfv)
+    driver = webdriver.Chrome(service=s, options=rfv_automation)
     driver.get(site_rfv)
     return driver
 

@@ -8,6 +8,7 @@ load_dotenv()
 caminho_bdrfv = os.getenv('caminho_bdrfv')
 caminho_bdativos = os.getenv('caminho_bdativos') 
 caminho_ativosatt = os.getenv('caminho_ativosatt')  
+pasta_destino_rfv = os.getenv('pasta_destino_rfv')  # alterado para pasta_destino_rfv
 
 def ler_base(): # funcão para ler a base baixada do RFV e unificar todas elas.
     arquivos = sorted(glob(caminho_bdrfv))
@@ -36,7 +37,7 @@ def processar_dados(): # função principal deste código
     
     # caminho da pasta de origem
     pasta_origem = os.path.expanduser('~/Downloads')
-    pasta_destino = r'C:\Users\700543\Sotreq\Darlan Monteiro - Desenvolvimento\status_project\STATUS-DE-COMUNICACAO\bd_rfv'  # alterarr caminho
+    pasta_destino = pasta_destino_rfv  # alterarr caminho
     os.makedirs(pasta_destino, exist_ok=True)
     # percorre os arquivos na pasta de origem
     for arquivo in os.listdir(pasta_origem):
@@ -47,10 +48,8 @@ def processar_dados(): # função principal deste código
             shutil.move(origem, destino)
             print(f'Movido: {arquivo}')
     
-    
     bases_concat = ler_base()
     ativos = ler_planilha_ativos()
-    
     coluna_bdconcat = 'Unit Name'
     coluna_bdativos = 'NºSÉRIE'
     
