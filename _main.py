@@ -1,8 +1,12 @@
 import pandas as pd
 from processamento_dados import processar_dados
 from dsp_automacao_selenium import web
+from rfv_automacao_selenium import automacao_rfv
 
 def atualizar_dados():
+    
+    automacao_rfv()  # chama a automação rfv
+    
     # executa a função para processamento dos dados
     caminho_saida, nao_atualizados_ultima_comunicacao = processar_dados()
     

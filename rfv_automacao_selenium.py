@@ -45,7 +45,7 @@ def automacao_rfv(): # função principal para automatizar o processo de exporta
         except Exception as e:
             print(f"Ocorreu um erro ao processar o cliente {cliente}: {e}")
         
-        try: # Clica no nome do cliente na árvore de clientes
+        try: # clica no nome do cliente na árvore de clientes
             click_nome_cliente = WebDriverWait(driver, 120).until(EC.element_to_be_clickable((By.XPATH, '//*[contains(@class, "involve-tree-node")]/h4')))
             time.sleep(1)
             click_nome_cliente.click()
@@ -54,7 +54,7 @@ def automacao_rfv(): # função principal para automatizar o processo de exporta
             print(f"Não foi possível encontrar o nome do cliente para {cliente}.")
             continue
          
-        try: # Clica na área de Vitals ou Fleet Status
+        try: # clica na área de Vitals ou Fleet Status
             area_vitals_h4 = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, '//div[contains(@class, "cdk-virtual-scroll-content-wrapper")]//h4[normalize-space()="Area Vitals" or normalize-space()="Fleet Status"]')))
             if "Area Vitals" in area_vitals_h4.text or "Fleet Status" in area_vitals_h4.text:
                 time.sleep(1)
@@ -64,7 +64,7 @@ def automacao_rfv(): # função principal para automatizar o processo de exporta
             print("Não foi possível encontrar a área Vitals.")
             continue
                        
-        try: # Clica no botão de status do sistema
+        try: # clica no botão de status do sistema
             system_status = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CLASS_NAME,'menu-button')))       
             print('Clicando no status do sistema...')
             time.sleep(1)
@@ -74,7 +74,7 @@ def automacao_rfv(): # função principal para automatizar o processo de exporta
             print("Não foi possível encontrar o status do sistema.")
             continue
         
-        try: # Clica no botão de exportação de dados
+        try: # clica no botão de exportação de dados
             export = WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, '//system-status-tile-v2//involve-datasource-export//button')))   
             time.sleep(1)
             export.click()
@@ -83,16 +83,16 @@ def automacao_rfv(): # função principal para automatizar o processo de exporta
             print("Não foi possível encontrar o botão de exportação.")
             continue
         
-        try: # Seleciona o formato XLSX para exportação
-            xlsx = WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.CLASS_NAME, 'overflow-auto')))
-            if "XLSX" in xlsx.text:
+        try: # seleciona o formato XLSX para exportação
+            #xlsx = WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.CLASS_NAME, 'overflow-auto')))
+            csv_button = WebDriverWait(driver, 30).until(
+        EC.element_to_be_clickable((By.XPATH, "//div[contains(text(), 'CSV')]")))
+            if "CSV" in csv_button.text:
                 time.sleep(1)
-                xlsx.click()
-                print("Formato XLSX selecionado com sucesso.")
+                csv_button.click()
+                print("Formato CSV selecionado com sucesso.")
         except TimeoutException:
-            print("Não foi possível encontrar o formato XLSX.")
+            print("Não foi possível encontrar o formato CSV.")
             continue
         time.sleep(5)
         
-automacao_rfv()
-    
