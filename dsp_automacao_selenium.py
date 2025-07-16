@@ -14,6 +14,7 @@ def config_navegador():
     load_dotenv()
     caminho_user_chorme = os.getenv('caminho_user_chorme')
     site_dsp = os.getenv('site_dsp')
+
     s = Service(r'./msedgedriver.exe')
     dsp_automation = webdriver.EdgeOptions()
     dsp_automation.add_argument(caminho_user_chorme)
@@ -23,9 +24,12 @@ def config_navegador():
 
 def web(sn_lista): 
     driver = config_navegador()
+
+    # Esperar campo de pesquisa inicial
     pesquisa = WebDriverWait(driver, 120).until(
-        EC.presence_of_element_located((By.CLASS_NAME, 'input-field')))
-    time.sleep(1)
+        EC.presence_of_element_located((By.CLASS_NAME, 'input-field'))
+    )
+    time.sleep(2)
     pesquisa.send_keys('12345678' + Keys.ENTER)
         
     data = {}
@@ -33,74 +37,66 @@ def web(sn_lista):
     for sn in sn_lista:
         try:
             # Limpar barra de pesquisa anterior
-            x_barra_pesquisa = WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.CLASS_NAME, 'clear')))
-            time.sleep(3)
+            x_barra_pesquisa = WebDriverWait(driver, 120).until(
+                EC.element_to_be_clickable((By.CLASS_NAME, 'clear'))
+            )
+            time.sleep(1)
             x_barra_pesquisa.click()
 
             # Realizar nova busca
-            busca = WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.CLASS_NAME, 'input-field')))
+            busca = WebDriverWait(driver, 120).until(
+                EC.presence_of_element_located((By.CLASS_NAME, 'input-field'))
+            )
             time.sleep(3)
             busca.send_keys(sn + Keys.ENTER)
 
-            # Buscar por elementos relacionados ao SN
-            lista_sn_elementos = WebDriverWait(driver, 20).until(EC.presence_of_all_elements_located((By.ID, 'td-0-0')))
-            for sn_elementos in lista_sn_elementos:
-                if sn in sn_elementos.text.upper():
+            # Buscar elemento relacionado ao SN
+            lista_sn_elementos = WebDriverWait(driver, 120).until(
+                EC.presence_of_all_elements_located((By.ID, 'td-0-0'))
+            )
+            for sn_elemento in lista_sn_elementos:
+                if sn in sn_elemento.text.upper():
                     time.sleep(3)
-                    sn_elementos.click()
+                    sn_elemento.click()
                     break
             else:
                 print(f"- Elemento não encontrado: {sn}")
+                data[sn] = "SN não encontrado"
                 continue
 
-            # Abrir engrenagem de informações do dispositivo
-            engrenagem_device_information = WebDriverWait(driver, 20).until(
-                EC.presence_of_element_located((By.XPATH, '//*[@id="asset-drawer-container"]/div/div[1]/div/div[2]/dsp-next-gen-ui-dft-asset-device-details/div/cc-card/div/cc-card-content/div/div[1]/div[2]/img')))
+            # Esperar engrenagem de informações do dispositivo estar clicável
+            engrenagem_device_information = WebDriverWait(driver, 120).until(
+                EC.element_to_be_clickable((By.XPATH, '//*[@id="asset-drawer-container"]/div/div[1]/div/div[2]/dsp-next-gen-ui-dft-asset-device-details/div/cc-card/div/cc-card-content/div/div[1]/div[2]/img'))
+            )
+
+            # Scroll até o elemento e tentar clicar
+            driver.execute_script("arguments[0].scrollIntoView(true);", engrenagem_device_information)
             time.sleep(3)
-            engrenagem_device_information.click()
+            try:
+                engrenagem_device_information.click()
+            except Exception as e:
+                print(f"Erro ao clicar na engrenagem (tentando via JS): {e}")
+                driver.execute_script("arguments[0].click();", engrenagem_device_information)
+
             time.sleep(3)
 
-            # Captura das datas
-            last_check_in = WebDriverWait(driver, 120).until(EC.presence_of_element_located((By.XPATH, '//*[@id="device-status"]/div[2]/div[1]/div/div/div[3]/div[1]/span[2]'))).text
+            # Captura da data "Last Check-in"
+            last_check_in = WebDriverWait(driver, 120).until(
+                EC.presence_of_element_located((By.XPATH, '//*[@id="device-status"]/div[2]/div[1]/div/div/div[3]/div[1]/span[2]'))
+            ).text
 
-            # last_http = WebDriverWait(driver, 120).until(EC.presence_of_element_located((By.XPATH, '//*[@id="device-status"]/div[2]/div[1]/div/div/div[3]/div[2]/span[2]'))).text
-
-            # last_saber = WebDriverWait(driver, 120).until(EC.presence_of_element_located((By.XPATH, '//*[@id="device-status"]/div[2]/div[1]/div/div/div[3]/div[3]/span[2]'))).text
-
-            # # Formato esperado das datas
-            # formato_data = "%d/%m/%Y"
-
-            # def converter_data(data_str):
-            #     """Converte string de data para datetime, ignorando valores inválidos."""
-            #     if data_str and data_str.strip() not in ["-", ""]:
-            #         try:
-            #             return datetime.strptime(data_str.split(" ")[0], formato_data)
-            #         except ValueError:
-            #             print(f"Erro ao converter data: {data_str}")
-            #             return None
-            #     return None
-
-            # # Conversão das datas
-            # data_check_in = converter_data(last_check_in)
-            # data_http = converter_data(last_http)
-            # data_saber = converter_data(last_saber)
-
-            # Filtrar apenas datas válidas e encontrar a maior
-            # datas_validas = [d for d in [data_check_in, data_http, data_saber] if d is not None]
-            # maior_data = max(datas_validas) if datas_validas else None
-
-            # Armazenar no dicionário
             data[sn] = last_check_in
 
-            # Fechar abas abertas
-            x_device_status = WebDriverWait(driver, 20).until(
-                EC.presence_of_element_located((By.XPATH, '//*[@id="device-status"]/div[1]/div/div/cc-icon'))
+            # Fechar aba de status do dispositivo
+            x_device_status = WebDriverWait(driver, 120).until(
+                EC.element_to_be_clickable((By.XPATH, '//*[@id="device-status"]/div[1]/div/div/cc-icon'))
             )
             time.sleep(3)
             x_device_status.click()
 
-            x_segunda_aba = WebDriverWait(driver, 20).until(
-                EC.presence_of_element_located((By.XPATH, '//*[@id="multiSizeDrawer"]/div[2]/dsp-next-gen-ui-dft-asset-drawer/div/div[1]/div[2]/div[2]/cc-icon'))
+            # Fechar segunda aba
+            x_segunda_aba = WebDriverWait(driver, 120).until(
+                EC.element_to_be_clickable((By.XPATH, '//*[@id="multiSizeDrawer"]/div[2]/dsp-next-gen-ui-dft-asset-drawer/div/div[1]/div[2]/div[2]/cc-icon'))
             )
             time.sleep(3)
             x_segunda_aba.click()
