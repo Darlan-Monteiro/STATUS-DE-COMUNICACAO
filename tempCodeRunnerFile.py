@@ -1,1 +1,1 @@
-dh_ultimo_ping_dict
+iniciar_execucao
