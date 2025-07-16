@@ -85,8 +85,7 @@ def automacao_rfv(): # função principal para automatizar o processo de exporta
         
         try: # seleciona o formato XLSX para exportação
             #xlsx = WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.CLASS_NAME, 'overflow-auto')))
-            csv_button = WebDriverWait(driver, 30).until(
-        EC.element_to_be_clickable((By.XPATH, "//div[contains(text(), 'CSV')]")))
+            csv_button = WebDriverWait(driver, 30).until(EC.element_to_be_clickable((By.XPATH, "//div[contains(text(), 'CSV')]")))
             if "CSV" in csv_button.text:
                 time.sleep(1)
                 csv_button.click()
