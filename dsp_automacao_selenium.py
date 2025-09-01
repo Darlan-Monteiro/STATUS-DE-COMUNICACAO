@@ -26,7 +26,7 @@ def web(sn_lista):
     driver = config_navegador()
 
     # Esperar campo de pesquisa inicial
-    pesquisa = WebDriverWait(driver, 120).until(
+    pesquisa = WebDriverWait(driver, 200).until(
         EC.presence_of_element_located((By.CLASS_NAME, 'input-field'))
     )
     time.sleep(2)
@@ -60,7 +60,7 @@ def web(sn_lista):
                     sn_elemento.click()
                     break
             else:
-                print(f"- Elemento não encontrado: {sn}")
+                print(f"❌ - Elemento não encontrado: {sn}")
                 data[sn] = "SN não encontrado"
                 continue
 
@@ -75,7 +75,7 @@ def web(sn_lista):
             try:
                 engrenagem_device_information.click()
             except Exception as e:
-                print(f"Erro ao clicar na engrenagem (tentando via JS): {e}")
+                print(f"❌ Erro ao clicar na engrenagem (tentando via JS): {e}")
                 driver.execute_script("arguments[0].click();", engrenagem_device_information)
 
             time.sleep(3)
@@ -104,7 +104,7 @@ def web(sn_lista):
             print(data)
         
         except (TimeoutException, NoSuchElementException) as e:
-            print(f"Erro ao processar SN {sn}: {e}")
+            print(f"❌ Erro ao processar SN {sn}: {e}")
             data[sn] = "Erro na coleta"
 
     driver.quit()

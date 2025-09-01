@@ -35,60 +35,60 @@ def automacao_rfv(): # função principal para automatizar o processo de exporta
             dropdown_abrir.click()
             dropdown_abrir.clear()
             time.sleep(0.5)
-            print(f"Procurando cliente: {cliente}")
+            print(f"📁 Procurando cliente: {cliente}")
             dropdown_abrir.send_keys(cliente)
             time.sleep(0.3)  
             dropdown_abrir.send_keys(Keys.ENTER)
-            print(f"Cliente {cliente} processado com sucesso.")
+            print(f"⚙️✅ Cliente {cliente} processado com sucesso.")
         except TimeoutException:
-            print(f"Não foi possível encontrar o dropdown para o cliente {cliente}.")       
+            print(f"⚙️❌ Não foi possível encontrar o dropdown para o cliente {cliente}.")       
         except Exception as e:
-            print(f"Ocorreu um erro ao processar o cliente {cliente}: {e}")
+            print(f"⚙️❗Ocorreu um erro ao processar o cliente {cliente}: {e}")
         
         try: # clica no nome do cliente na árvore de clientes
             click_nome_cliente = WebDriverWait(driver, 30).until(EC.element_to_be_clickable((By.XPATH, '//*[contains(@class, "involve-tree-node")]/h4')))
-            time.sleep(2)
+            time.sleep(3)
             click_nome_cliente.click()
-            print(f"Nome do cliente {cliente} encontrado e clicado com sucesso.")
+            print(f'👍 Nome do cliente "{cliente}" encontrado e clicado com sucesso.')
         except TimeoutException:
-            print(f"Não foi possível encontrar o nome do cliente para {cliente}.")
+            print(f'👎 Não foi possível encontrar o nome do cliente para "{cliente}".')
             continue
          
         try: # clica na área de Vitals ou Fleet Status
             area_vitals_h4 = WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.XPATH, '//div[contains(@class, "cdk-virtual-scroll-content-wrapper")]//h4[normalize-space()="Area Vitals" or normalize-space()="Fleet Status"]')))
             if "Area Vitals" in area_vitals_h4.text or "Fleet Status" in area_vitals_h4.text:
-                time.sleep(2)
+                time.sleep(3)
                 area_vitals_h4.click()
-                print("Área Vitals encontrada e clicada com sucesso.")
+                print("✅ Área Vitals encontrada e clicada com sucesso.")
         except TimeoutException:
-            print("Não foi possível encontrar a área Vitals.")
+            print("❌ Não foi possível encontrar a área Vitals.")
             continue
                        
         try: # clica no botão de status do sistema
             system_status = WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.CLASS_NAME,'menu-button')))
-            time.sleep(2)
+            time.sleep(3)
             system_status.click()
-            print("Status do sistema clicado com sucesso.")
+            print("✅ Status do sistema clicado com sucesso.")
         except TimeoutException:
-            print("Não foi possível encontrar o status do sistema.")
+            print("❌ Não foi possível encontrar o status do sistema.")
             continue
         
         try: # clica no botão de exportação de dados
             export = WebDriverWait(driver, 30).until(EC.element_to_be_clickable((By.XPATH, '//system-status-tile-v2//involve-datasource-export//button')))   
-            time.sleep(2)
+            time.sleep(3)
             export.click()
-            print("Exportando dados...")    
+            print("⌛ Exportando dados...")    
         except TimeoutException:
-            print("Não foi possível encontrar o botão de exportação.")
+            print("⌛❌ Não foi possível encontrar o botão de exportação.")
             continue
         
         try: # seleciona o formato XLSX para exportação
             #xlsx = WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.CLASS_NAME, 'overflow-auto')))
             csv_button = WebDriverWait(driver, 30).until(EC.element_to_be_clickable((By.XPATH, "//div[contains(text(), 'CSV')]")))
-            time.sleep(2)
+            time.sleep(3)
             csv_button.click()
-            print("Formato CSV selecionado com sucesso.")
+            print("✅ Formato CSV selecionado com sucesso.")
         except TimeoutException:
-            print("Não foi possível encontrar o formato CSV.")
+            print("❌ Não foi possível encontrar o formato CSV.")
             continue
         time.sleep(1)

@@ -24,7 +24,7 @@ pasta_destino_rfv = os.getenv('pasta_destino_rfv')  # alterado para pasta_destin
 def ler_base():
     arquivos = sorted(glob(caminho_bdrfv))
     if not arquivos:
-        print("Nenhum arquivo encontrado na pasta especificada.")
+        print("❗Nenhum arquivo encontrado na pasta especificada.")
         return None
 
     lista_df = []
@@ -51,7 +51,7 @@ def ler_planilha_ativos(): # Função para ler a planilha "2 - Ativos Cat Connec
         planilha_ativos = pd.read_excel(caminho_ativos, sheet_name=aba_ativos)
         return planilha_ativos
     except ValueError:
-        print(f"Arquivo {caminho_ativos} não encontrado.")
+        print(f"❌ Arquivo {caminho_ativos} não encontrado.")
         return None
     
 def remover_separador(separador): # função que tem como objetivo remover os 8 últimos caracteres de uma string.
@@ -82,11 +82,11 @@ def processar_dados(): # função principal deste código
     coluna_bdativos = 'NºSÉRIE'
     
     if bases_concat is None or ativos is None:
-        print('Erro! Base de dados vazia')
+        print('❌ Erro! Base de dados vazia')
         exit()
     
     if coluna_bdconcat not in bases_concat.columns or coluna_bdativos not in ativos.columns: 
-        print("Colunas não encontradas em um dos arquivos.")
+        print("❌ Colunas não encontradas em um dos arquivos.")
         exit()
         
     asset_name_modificado = bases_concat[coluna_bdconcat].astype(str).apply(remover_separador)
@@ -104,10 +104,10 @@ def processar_dados(): # função principal deste código
     for asset_name in asset_name_modificado:
         for n_serie in num_series_modificado:
             if asset_name in n_serie:
-                print(f'{asset_name} está presente em NºSÉRIE.')
+                print(f'✅ {asset_name} está presente em NºSÉRIE.')
                 break
         else:
-            print(f'{asset_name} NÃO está presente em NºSÉRIE.')
+            print(f'❌ {asset_name} NÃO está presente em NºSÉRIE.')
             lista_nao_contem.append(asset_name)
             
     ativos['Data Última Comunicação'] = ativos['Data Última Comunicação'].replace(['-', '', 'NaT'], pd.NaT)
@@ -124,19 +124,19 @@ def processar_dados(): # função principal deste código
         for  j, ativo_linha in ativos_correspondentes.iterrows():
             if sample_time > ativo_linha['Data Última Comunicação']:
                 ativos.at[j, 'Data Última Comunicação'] = sample_time
-                print(f'{ativo_linha[coluna_bdativos]} atuializado para {sample_time}\n')
+                print(f'✅ {ativo_linha[coluna_bdativos]} atuializado para {sample_time}\n')
             
             else:
-                print(f'{ativo_linha[coluna_bdativos]}:{sample_time} NÃO é maior que {ativo_linha["Data Última Comunicação"]}. \n')
+                print(f'❌ {ativo_linha[coluna_bdativos]}:{sample_time} NÃO é maior que {ativo_linha["Data Última Comunicação"]}. \n')
                 nao_atualizados_ultima_comunicacao.append(asset_name)
             
     print(ativos[['NºSÉRIE', 'Data Última Comunicação', 'Data Último Envio de Dados']])
-    print("\n\nAssets não atualizados para Data Última Comunicação:")
+    print("\n\n❌ Assets não atualizados para Data Última Comunicação:")
     print(nao_atualizados_ultima_comunicacao)
-    print("\n\nAssets que não contém na lista:")
+    print("\n\n❗ Assets que não contém na lista:")
     print(lista_nao_contem)
     
     caminho_saida = caminho_ativosatt
     ativos.to_excel(caminho_saida, index=False)
-    print(f"\n\nTabela atualizada salva em Sol. Tec - Documentos\Projeto Status de Comunicação\ com o nome de: {caminho_saida}")
+    print(f"\n\n 🔗 Tabela atualizada salva em Sol. Tec - Documentos\Projeto Status de Comunicação\ com o nome de: {caminho_saida}")
     return caminho_saida, nao_atualizados_ultima_comunicacao
