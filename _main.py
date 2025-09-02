@@ -38,7 +38,6 @@ def atualizar_dados():
         if filtro_sn.any():
             try:
                 data_excel = ativos_atualizados.loc[filtro_sn, 'Data Última Comunicação'].iloc[0]
-
                 # Se a célula está vazia ou a nova data é mais recente, atualiza
                 if pd.isna(data_excel) or data_dict > data_excel:
                     ativos_atualizados.loc[filtro_sn, 'Data Última Comunicação'] = data_dict
@@ -47,7 +46,6 @@ def atualizar_dados():
                     print(f"ℹ️ [INFO] {sn} → Já está atualizada ({data_dict})")
                 else:
                     print(f"ℹ️ [INFO] {sn} → Data na planilha ({data_excel}) é mais recente")
-
             except Exception as e:
                 print(f"❌ [ERRO] Ao acessar ou atualizar {sn}: {e}")
         else:
