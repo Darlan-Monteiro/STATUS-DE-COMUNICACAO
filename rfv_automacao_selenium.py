@@ -29,7 +29,8 @@ def automacao_rfv(): # função principal para automatizar o processo de exporta
     coluna_clientes = 'Clientes'
     clientes = base_clientes[coluna_clientes].to_list()
     
-    for cliente in clientes: # loop para iterar sobre cada cliente na lista de clientes
+    
+    for cliente in clientes: # loop principal sobre cada cliente na lista de clientes
         try:
             dropdown_abrir = WebDriverWait(driver, 30).until(EC.visibility_of_element_located((By.XPATH, '//*[@id="involve-select-0"]/div[1]/input'))) # Localiza o dropdown de clientes
             dropdown_abrir.click()

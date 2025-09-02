@@ -44,7 +44,7 @@ def atualizar_dados():
                     ativos_atualizados.loc[filtro_sn, 'Data Última Comunicação'] = data_dict
                     print(f"✅ [OK] {sn} → Data atualizada para {data_dict}")
                 elif data_dict == data_excel:
-                    print(f"ℹ️ [INFO]: {sn} → Já está atualizada ({data_dict})")
+                    print(f"ℹ️ [INFO] {sn} → Já está atualizada ({data_dict})")
                 else:
                     print(f"ℹ️ [INFO] {sn} → Data na planilha ({data_excel}) é mais recente")
 

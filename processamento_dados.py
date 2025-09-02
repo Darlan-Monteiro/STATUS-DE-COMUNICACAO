@@ -11,15 +11,6 @@ caminho_bdativos = os.getenv('caminho_bdativos')
 caminho_ativosatt = os.getenv('caminho_ativosatt')  
 pasta_destino_rfv = os.getenv('pasta_destino_rfv')  # alterado para pasta_destino_rfv
 
-# def ler_base(): # funcão para ler a base baixada do RFV e unificar todas elas.
-#     arquivos = sorted(glob(caminho_bdrfv))
-#     if not arquivos:
-#         print("Nenhum arquivo encontrado na pasta especificada.")
-#         return None
-#     arquivos_concat = pd.concat((pd.read_csv(cont, encoding='latin1', sep=';') for cont in arquivos), ignore_index=True)
-#     print(arquivos_concat)
-#     return arquivos_concat
-
 
 def ler_base():
     arquivos = sorted(glob(caminho_bdrfv))
@@ -75,12 +66,13 @@ def processar_dados(): # função principal deste código
             except Exception as e:
                 print(f"❌ Erro ao mover {arquivo.name}: {e}")
 
-    
+    # chamando as funções para ler as bases
     bases_concat = ler_base()
     ativos = ler_planilha_ativos()
     coluna_bdconcat = 'Unit Name'
     coluna_bdativos = 'NºSÉRIE'
     
+    # verificações de erro
     if bases_concat is None or ativos is None:
         print('❌ Erro! Base de dados vazia')
         exit()
@@ -88,6 +80,7 @@ def processar_dados(): # função principal deste código
     if coluna_bdconcat not in bases_concat.columns or coluna_bdativos not in ativos.columns: 
         print("❌ Colunas não encontradas em um dos arquivos.")
         exit()
+     
         
     asset_name_modificado = bases_concat[coluna_bdconcat].astype(str).apply(remover_separador)
     num_series = ativos[coluna_bdativos].astype(str)
