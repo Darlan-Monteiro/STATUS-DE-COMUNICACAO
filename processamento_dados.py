@@ -63,37 +63,15 @@ def processar_dados(): # função principal deste código
     pasta_destino.mkdir(parents=True, exist_ok=True)
 
     # percorre os arquivos na pasta de origem
-    # for arquivo in pasta_origem.iterdir():
-    #     if arquivo.is_file() and arquivo.name.lower().endswith('.csv') and 'system status' in arquivo.name.lower():
-    #         destino = pasta_destino / arquivo.name
-    #         try:
-    #             shutil.move(str(arquivo), str(destino))
-    #             print(f"✅ Movido: {arquivo.name}")
-    #         except Exception as e:
-    #             print(f"❌ Erro ao mover {arquivo.name}: {e}")
+    for arquivo in pasta_origem.iterdir():
+        if arquivo.is_file() and arquivo.name.lower().endswith('.csv') and 'system status' in arquivo.name.lower():
+            destino = pasta_destino / arquivo.name
+            try:
+                shutil.move(str(arquivo), str(destino))
+                print(f"✅ Movido: {arquivo.name}")
+            except Exception as e:
+                print(f"❌ Erro ao mover {arquivo.name}: {e}")
 
-
-    candidatos = [
-        p for p in pasta_origem.iterdir()
-        if p.is_file() and p.suffix.lower() == '.csv' and 'system status' in p.name.lower()
-    ]
-
-    if not candidatos:
-        print("❗Nenhum CSV 'system status' encontrado no Downloads.")
-    else:
-        mais_recente = max(candidatos, key=lambda p: p.stat().st_mtime)
-        destino = pasta_destino / mais_recente.name
-
-        try:
-            if destino.exists():
-                from datetime import datetime
-                ts = datetime.fromtimestamp(mais_recente.stat().st_mtime).strftime("%Y%m%d_%H%M%S")
-                destino = destino.with_name(f"{destino.stem}__{ts}{destino.suffix}")
-
-            shutil.move(str(mais_recente), str(destino))
-            print(f"✅ Movido somente o mais recente: {mais_recente.name} -> {destino.name}")
-        except Exception as e:
-            print(f"❌ Erro ao mover {mais_recente.name}: {e}")
 
 
     # chamando as funções para ler as bases
