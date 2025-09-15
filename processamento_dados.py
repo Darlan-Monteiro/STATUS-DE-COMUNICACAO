@@ -134,6 +134,7 @@ def processar_dados(): # função principal deste código
     print(ativos[['NºSÉRIE', 'Data Última Comunicação', 'Data Último Envio de Dados']])
     print("\n\n❌ Assets não atualizados para Data Última Comunicação:")
     print(nao_atualizados_ultima_comunicacao)
+    print(len(nao_atualizados_ultima_comunicacao)) # quantidade de ativos que não foram atualizados
     print("\n\n❗ Assets que não contém na lista:")
     print(lista_nao_contem)
     

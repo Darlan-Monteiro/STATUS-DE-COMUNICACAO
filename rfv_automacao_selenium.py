@@ -42,7 +42,7 @@ def automacao_rfv(): # função principal para automatizar o processo de exporta
             dropdown_abrir.send_keys(Keys.ENTER)
             print(f"⚙️✅ Cliente {cliente} processado com sucesso.")
         except TimeoutException:
-            print(f"⚙️❌ Não foi possível encontrar o dropdown para o cliente {cliente}.")       
+            print(f"⚙️❌ Não foi possível encontrar o dropdown para o cliente {cliente}.\n")       
         except Exception as e:
             print(f"⚙️❗Ocorreu um erro ao processar o cliente {cliente}: {e}")
         
@@ -62,7 +62,7 @@ def automacao_rfv(): # função principal para automatizar o processo de exporta
                 area_vitals_h4.click()
                 print("✅ Área Vitals encontrada e clicada com sucesso.")
         except TimeoutException:
-            print("❌ Não foi possível encontrar a área Vitals.")
+            print("❌ Não foi possível encontrar a área Vitals.\n")
             continue
                        
         try: # clica no botão de status do sistema
@@ -71,7 +71,7 @@ def automacao_rfv(): # função principal para automatizar o processo de exporta
             system_status.click()
             print("✅ Status do sistema clicado com sucesso.")
         except TimeoutException:
-            print("❌ Não foi possível encontrar o status do sistema.")
+            print("❌ Não foi possível encontrar o status do sistema.\n")
             continue
         
         try: # clica no botão de exportação de dados
@@ -80,7 +80,7 @@ def automacao_rfv(): # função principal para automatizar o processo de exporta
             export.click()
             print("⌛ Exportando dados...")    
         except TimeoutException:
-            print("⌛❌ Não foi possível encontrar o botão de exportação.")
+            print("⌛❌ Não foi possível encontrar o botão de exportação.\n")
             continue
         
         try: # seleciona o formato XLSX para exportação
@@ -90,6 +90,6 @@ def automacao_rfv(): # função principal para automatizar o processo de exporta
             csv_button.click()
             print("✅ Formato CSV selecionado com sucesso.")
         except TimeoutException:
-            print("❌ Não foi possível encontrar o formato CSV.")
+            print("❌ Não foi possível encontrar o formato CSV.\n")
             continue
         time.sleep(1)
