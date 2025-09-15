@@ -50,6 +50,7 @@ def atualizar_dados():
                 print(f"❌ [ERRO] Ao acessar ou atualizar {sn}: {e}")
         else:
             print(f"❗ [IGNORADO] {sn} → Não encontrado na planilha.")
+        
     
     # Salva a planilha atualizada
     ativos_atualizados.to_excel(caminho_saida, index=False)
