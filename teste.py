@@ -61,25 +61,6 @@ def automacao_rfv(): # função principal para automatizar o processo de exporta
         except TimeoutException:
             print(f"❌ Não foi possível encontrar a área Vitals para o cliente {cliente}.\n")
             continue
-  
-        # try: # clica no nome do cliente na árvore de clientes
-        #     click_nome_cliente = WebDriverWait(driver, 30).until(EC.element_to_be_clickable((By.XPATH, '//*[contains(@class, "involve-tree-node")]/h4')))
-        #     time.sleep(3)
-        #     click_nome_cliente.click()
-        #     print(f'👍 Nome do cliente "{cliente}" encontrado e clicado com sucesso.')
-        # except TimeoutException:
-        #     print(f'👎 Não foi possível encontrar o nome do cliente para "{cliente}".')
-        #     continue
-         
-        # try: # clica na área de Vitals ou Fleet Status
-        #     area_vitals_h4 = WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.XPATH, '//div[contains(@class, "cdk-virtual-scroll-content-wrapper")]//h4[normalize-space()="Area Vitals" or normalize-space()="Fleet Status"]')))
-        #     if "Area Vitals" in area_vitals_h4.text or "Fleet Status" in area_vitals_h4.text:
-        #         time.sleep(3)
-        #         area_vitals_h4.click()
-        #         print("✅ Área Vitals encontrada e clicada com sucesso.")
-        # except TimeoutException:
-        #     print("❌ Não foi possível encontrar a área Vitals.\n")
-        #     continue
                        
         try: # clica no botão de status do sistema
             system_status = WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.CLASS_NAME,'menu-button')))
