@@ -29,42 +29,48 @@ def automacao_rfv(): # função principal para automatizar o processo de exporta
     coluna_clientes = 'Clientes'
     clientes = base_clientes[coluna_clientes].to_list()
     
-    
     for cliente in clientes: # loop principal sobre cada cliente na lista de clientes
         try:
-            dropdown_abrir = WebDriverWait(driver, 30).until(EC.visibility_of_element_located((By.XPATH, '//*[@id="involve-select-0"]/div[1]/input'))) # Localiza o dropdown de clientes
+            dropdown_abrir = WebDriverWait(driver, 130).until(EC.visibility_of_element_located((By.XPATH, '//*[@id="involve-select-0"]/div[1]/input'))) # Localiza o dropdown de clientes
             dropdown_abrir.click()
             dropdown_abrir.clear()
-            time.sleep(0.5)
+            time.sleep(2)
             print(f"📁 Procurando cliente: {cliente}")
             dropdown_abrir.send_keys(cliente)
-            time.sleep(0.3)  
+            time.sleep(2)  
             dropdown_abrir.send_keys(Keys.ENTER)
             print(f"⚙️✅ Cliente {cliente} processado com sucesso.")
         except TimeoutException:
-            print(f"⚙️❌ Não foi possível encontrar o dropdown para o cliente {cliente}.\n")       
+            print(f"⚙️❌ Não foi possível encontrar o dropdown para o cliente {cliente}.\n")
+            continue  
         except Exception as e:
             print(f"⚙️❗Ocorreu um erro ao processar o cliente {cliente}: {e}")
-        
-        try:
-            selecionar_menu_opçoes = WebDriverWait(driver, 30).until(EC.element_to_be_clickable((By.XPATH, '/html/body/app/div[1]/ng-component/sitemapgroup-dashboard/ng-component/breadcrumb/div/div[2]/div[1]/breadcrumb-menu/div')))
-            time.sleep(1.5)
-            selecionar_menu_opçoes.click()
-            lista_h3 = WebDriverWait(driver, 30).until(EC.presence_of_all_elements_located((By.XPATH, '//*[@id="cdk-overlay-0"]/div/div/div//h3')))
-            for i, elementos_h3 in enumerate(lista_h3):
+            continue
+
+        seta_aba_cliente = WebDriverWait(driver, 130).until(EC.element_to_be_clickable((By.XPATH, '/html/body/app/div[1]/ng-component/sitemapgroup-dashboard/ng-component/breadcrumb/div/div[1]/span[2]')))
+        time.sleep(2)
+        seta_aba_cliente.click()
                 
-                if "Area Vitals" in elementos_h3.text:
-                    elementos_h3.click()
-                    time.sleep(3)
-                    print(f"✅ Área Vitals encontrada e clicada com sucesso para o cliente {cliente}.")
-                    break
-        except TimeoutException:
+        selecionar_menu_opçoes = WebDriverWait(driver, 60).until(EC.element_to_be_clickable((By.XPATH, '/html/body/app/div[1]/ng-component/sitemapgroup-dashboard/ng-component/breadcrumb/div/div[2]/div[1]/breadcrumb-menu/div')))
+        time.sleep(1.5)
+        selecionar_menu_opçoes.click()
+        time.sleep(1)
+        lista_h3 = WebDriverWait(driver, 60).until(EC.presence_of_all_elements_located((By.XPATH, '//div[contains(@id, "cdk-overlay")]/div/div/div//h3')))
+        time.sleep(1)
+        
+        for i, elementos_h3 in enumerate(lista_h3):
+            if "Area Vitals" in elementos_h3.text:
+                time.sleep(2)
+                elementos_h3.click()
+                print(f"✅ Área Vitals encontrada e clicada com sucesso para o cliente {cliente}.")
+                break
+        else:
             print(f"❌ Não foi possível encontrar a área Vitals para o cliente {cliente}.\n")
             continue
                        
         try: # clica no botão de status do sistema
             system_status = WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.CLASS_NAME,'menu-button')))
-            time.sleep(3)
+            time.sleep(2)
             system_status.click()
             print("✅ Status do sistema clicado com sucesso.")
         except TimeoutException:
@@ -73,7 +79,7 @@ def automacao_rfv(): # função principal para automatizar o processo de exporta
         
         try: # clica no botão de exportação de dados
             export = WebDriverWait(driver, 30).until(EC.element_to_be_clickable((By.XPATH, '//system-status-tile-v2//involve-datasource-export//button')))   
-            time.sleep(3)
+            time.sleep(2)
             export.click()
             print("⌛ Exportando dados...") 
         except TimeoutException:
