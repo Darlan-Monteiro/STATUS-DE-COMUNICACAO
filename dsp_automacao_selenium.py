@@ -1,3 +1,6 @@
+import os
+import time
+from webdriver_manager.microsoft import EdgeChromiumDriverManager
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
@@ -7,8 +10,6 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException, NoSuchElementException
 from dotenv import load_dotenv
 from datetime import datetime
-import time
-import os
 
 def config_navegador():
     load_dotenv()
@@ -16,6 +17,7 @@ def config_navegador():
     site_dsp = os.getenv('site_dsp')
 
     s = Service(r'./msedgedriver.exe')
+    #s = Service(EdgeChromiumDriverManager().install())
     dsp_automation = webdriver.EdgeOptions()
     dsp_automation.add_argument(caminho_user_chorme)
     driver = webdriver.Edge(service=s, options=dsp_automation)
@@ -29,7 +31,7 @@ def web(sn_lista):
     pesquisa = WebDriverWait(driver, 200).until(
         EC.presence_of_element_located((By.CLASS_NAME, 'input-field'))
     )
-    time.sleep(2)
+    time.sleep(1.5)
     pesquisa.send_keys('12345678' + Keys.ENTER)
         
     data = {}
@@ -40,14 +42,14 @@ def web(sn_lista):
             x_barra_pesquisa = WebDriverWait(driver, 120).until(
                 EC.element_to_be_clickable((By.CLASS_NAME, 'clear'))
             )
-            time.sleep(1)
+            time.sleep(1.5)
             x_barra_pesquisa.click()
 
             # Realizar nova busca
             busca = WebDriverWait(driver, 120).until(
                 EC.presence_of_element_located((By.CLASS_NAME, 'input-field'))
             )
-            time.sleep(3)
+            time.sleep(1.5)
             busca.send_keys(sn + Keys.ENTER)
 
             # Buscar elemento relacionado ao SN
@@ -56,7 +58,7 @@ def web(sn_lista):
             )
             for sn_elemento in lista_sn_elementos:
                 if sn in sn_elemento.text.upper():
-                    time.sleep(3)
+                    time.sleep(1.5)
                     sn_elemento.click()
                     break
             else:
@@ -71,14 +73,14 @@ def web(sn_lista):
 
             # Scroll até o elemento e tentar clicar
             driver.execute_script("arguments[0].scrollIntoView(true);", engrenagem_device_information)
-            time.sleep(3)
+            time.sleep(1.5)
             try:
                 engrenagem_device_information.click()
             except Exception as e:
                 print(f"❌ Erro ao clicar na engrenagem (tentando via JS): {e}")
                 driver.execute_script("arguments[0].click();", engrenagem_device_information)
 
-            time.sleep(3)
+            time.sleep(1.5)
 
             # Captura da data "Last Check-in"
             last_check_in = WebDriverWait(driver, 120).until(
@@ -91,14 +93,14 @@ def web(sn_lista):
             x_device_status = WebDriverWait(driver, 120).until(
                 EC.element_to_be_clickable((By.XPATH, '//*[@id="device-status"]/div[1]/div/div/cc-icon'))
             )
-            time.sleep(3)
+            time.sleep(1.5)
             x_device_status.click()
 
             # Fechar segunda aba
             x_segunda_aba = WebDriverWait(driver, 120).until(
                 EC.element_to_be_clickable((By.XPATH, '//*[@id="multiSizeDrawer"]/div[2]/dsp-next-gen-ui-dft-asset-drawer/div/div[1]/div[2]/div[2]/cc-icon'))
             )
-            time.sleep(3)
+            time.sleep(1.5)
             x_segunda_aba.click()
 
             print(data)

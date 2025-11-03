@@ -1,2 +1,3 @@
 
-            selecionar_menu_opçoes.click()
+    
+    print(f"Encontrados {len(arquivos_para_deletar)} arquivos .csv para deletar...")
