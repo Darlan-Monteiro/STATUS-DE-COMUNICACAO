@@ -10,13 +10,12 @@ def get_local_edge_version():
     Verifica no registro do Windows a versão do Microsoft Edge instalada.
     """
     try:
-        # Caminho da chave do registro para o Edge
         key = winreg.OpenKey(winreg.HKEY_CURRENT_USER, r"Software\Microsoft\Edge\BLBeacon")
         version, _ = winreg.QueryValueEx(key, "version")
-        print(f"✅ Versão do Microsoft Edge encontrada: {version}")
+        print(f"Versão do Microsoft Edge encontrada: {version}")
         return version
     except FileNotFoundError:
-        print("❌ Não foi possível encontrar a versão do Microsoft Edge no registro.")
+        print("Não foi possível encontrar a versão do Microsoft Edge no registro.")
         return None
 
 def gerenciar_edgedriver():
@@ -25,24 +24,23 @@ def gerenciar_edgedriver():
     extrai e coloca na pasta do projeto.
     """
     if os.path.exists("msedgedriver.exe"):
-        print("ℹ️ O arquivo msedgedriver.exe já existe. Pulando o download.")
+        print("O arquivo msedgedriver.exe já existe. Pulando a parte do download.")
         return True
 
-    print("🔎 msedgedriver.exe não encontrado. Iniciando processo de download...")
+    print(" msedgedriver.exe não encontrado. Iniciando processo de download...")
     
     local_version = get_local_edge_version()
     if not local_version:
         return False
 
-    # A página de download do WebDriver
     url = "https://developer.microsoft.com/en-us/microsoft-edge/tools/webdriver/"
     
-    print(f"🌍 Acessando a página de drivers: {url}")
+    print(f"Acessando a página de drivers: {url}")
     try:
         response = requests.get(url)
-        response.raise_for_status() # Lança um erro se a requisição falhar
+        response.raise_for_status()
     except requests.exceptions.RequestException as e:
-        print(f"❌ Falha ao acessar a página de drivers: {e}")
+        print(f"Falha ao acessar a página de drivers: {e}")
         return False
 
     soup = BeautifulSoup(response.content, 'html.parser')
@@ -58,30 +56,28 @@ def gerenciar_edgedriver():
     for link in links:
         if major_version in link['href'] and "win64" in link['href'] and link['href'].endswith('.zip'):
             download_link = link['href']
-            print(f"🔗 Link de download encontrado para a versão ~{major_version}: {download_link}")
+            print(f" Link de download encontrado para a versão ~{major_version}: {download_link}")
             break
 
     if not download_link:
-        print(f"❌ Não foi encontrado um driver compatível para a versão {major_version} na página.")
+        print(f" Não foi encontrado um driver compatível para a versão {major_version} na página.")
         return False
         
-    print(f"📥 Baixando o driver de {download_link}...")
+    print(f" Baixando o driver de {download_link}...")
     try:
         driver_response = requests.get(download_link, stream=True)
         driver_response.raise_for_status()
     except requests.exceptions.RequestException as e:
-        print(f"❌ Falha ao baixar o arquivo do driver: {e}")
+        print(f" Falha ao baixar o arquivo do driver: {e}")
         return False
         
-    print("📦 Descompactando o arquivo...")
+    print(" Descompactando o arquivo...")
     try:
-        # Usa BytesIO para descompactar o arquivo em memória, sem salvar o .zip no disco
         zip_file = zipfile.ZipFile(BytesIO(driver_response.content))
-        # Extrai APENAS o msedgedriver.exe para a pasta atual ('.')
         zip_file.extract('msedgedriver.exe', '.')
-        print("✅ msedgedriver.exe extraído com sucesso na pasta do projeto!")
+        print(" msedgedriver.exe extraído com sucesso na pasta do projeto!")
         return True
     except Exception as e:
-        print(f"❌ Erro ao descompactar o arquivo: {e}")
+        print(f" Erro ao descompactar o arquivo: {e}")
         return False
     

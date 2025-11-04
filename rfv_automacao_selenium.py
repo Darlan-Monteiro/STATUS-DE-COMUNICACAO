@@ -1,13 +1,13 @@
 import os
 import polars as pl
 import time
-from webdriver_manager.microsoft import EdgeChromiumDriverManager
-from selenium import webdriver
-from selenium.webdriver.chrome.service import Service
-from selenium.webdriver.common.by import By
 from dotenv import load_dotenv
+from selenium import webdriver
+from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.support.ui import WebDriverWait
+from webdriver_manager.microsoft import EdgeChromiumDriverManager
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException, NoSuchElementException, ElementClickInterceptedException
 
@@ -29,10 +29,6 @@ def login():
     return cws, senha
 
 
-# Importe esta exceção no topo do seu arquivo, se já não estiver lá
-from selenium.common.exceptions import TimeoutException
-
-# ... (o resto dos seus imports e a função login) ...
 
 def automacao_rfv():
     cws, senha = login()
@@ -42,12 +38,9 @@ def automacao_rfv():
     base_clientes = pl.read_excel(base_cliente)
     coluna_clientes = 'Clientes'
     clientes = base_clientes[coluna_clientes].to_list()
-    
-    # --- LOGIN RFV (TENTATIVA ÚNICA - LÓGICA ALTERNATIVA) ---
     print(f"Tentando login com o CWS: {cws}")
     
     try:
-        # --- ETAPA 1: Inserir CWS ---
         campo_cws = WebDriverWait(driver, 180).until(
             EC.visibility_of_element_located((By.ID, 'signInName'))
         )
@@ -56,52 +49,42 @@ def automacao_rfv():
         
         botao_continuar = driver.find_element(By.ID, 'next')
         botao_continuar.click()
-            
-        # --- ETAPA 2: LÓGICA SEM 'EC.or_' ---
+
         print("Verificando se a senha é necessária...")
         
         try:
-            # Tenta encontrar o campo de senha com um tempo CURTO (5 segundos)
             campo_senha = WebDriverWait(driver, 5).until(
                 EC.visibility_of_element_located((By.ID, 'i0118'))
             )
-            
-            # --- CAMINHO A: Pediu a senha ---
+
             print("Senha necessária. Inserindo senha...")
             campo_senha.clear()
             campo_senha.send_keys(senha)
             campo_senha.send_keys(Keys.ENTER)
-            
-            # Agora, espera pelo dashboard (espera longa, 15s)
+
             print("Verificando o login após a senha...")
             WebDriverWait(driver, 15).until(
                 EC.visibility_of_element_located((By.XPATH, '//*[@id="involve-select-0"]/div[1]/input'))
             )
             
         except TimeoutException:
-            # --- CAMINHO B: Não pediu a senha (Timeout de 5s) ---
             print("Campo de senha não encontrado. Verificando login automático...")
-            
-            # Se não achou a senha, procura o dashboard (espera longa, 15s)
             WebDriverWait(driver, 15).until(
                 EC.visibility_of_element_located((By.XPATH, '//*[@id="involve-select-0"]/div[1]/input'))
             )
             print("Login automático (sem senha) detectado.")
-
-        # Se o script chegou aqui por qualquer um dos caminhos, o login foi OK
-        print("✅ Login realizado com sucesso!")
+        print(" Login realizado com sucesso!")
 
     except TimeoutException:
-        # Se QUALQUER uma das esperas longas falhar (Etapa 1, ou as esperas do Dashboard),
-        # o script vai cair AQUI.
+
         print("\n" + "="*40)
-        print("❌ ERRO FATAL: Login falhou.")
-        print("   Verifique seu CWS/Senha ou se a página mudou.")
+        print("ERRO! o Login falhou.")
+        print("   Verifique seu CWS/Senha.")
         print("   Encerrando o programa.")
         print("="*40 + "\n")
         
-        driver.quit() # Fecha o navegador
-        return        # Para a execução da função (e do script)
+        driver.quit()
+        return        
 
         
     
@@ -113,16 +96,16 @@ def automacao_rfv():
             dropdown_abrir.click()
             dropdown_abrir.clear()
             time.sleep(2)
-            print(f"📁 Procurando cliente: {cliente}")
+            print(f"Procurando cliente: {cliente}")
             dropdown_abrir.send_keys(cliente)
             time.sleep(2)
             dropdown_abrir.send_keys(Keys.ENTER)
-            print(f"⚙️✅ Cliente {cliente} processado com sucesso.")
+            print(f"Cliente {cliente} processado com sucesso.")
         except TimeoutException:
-            print(f"⚙️❌ Não foi possível encontrar o dropdown para o cliente {cliente}.\n")
+            print(f"Não foi possível encontrar o dropdown para o cliente {cliente}.\n")
             continue  
         except Exception as e:
-            print(f"⚙️❗Ocorreu um erro ao processar o cliente {cliente}: {e}")
+            print(f"Ocorreu um erro ao processar o cliente {cliente}: {e}")
             continue
 
         try:
@@ -132,7 +115,7 @@ def automacao_rfv():
             time.sleep(1)
             seta_aba_cliente.click()
         except Exception as e:
-            print(f"❌ Erro ao abrir aba do cliente {cliente}: {e}")
+            print(f" Erro ao abrir aba do cliente {cliente}: {e}")
             continue
 
         try:
@@ -151,14 +134,14 @@ def automacao_rfv():
                 if "Area Vitals" in elementos_h3.text or "Fleet Status" in elementos_h3.text:
                     time.sleep(0.5)
                     elementos_h3.click()
-                    print(f"✅ Área Vitals/Fleet Status encontrada e clicada com sucesso para o cliente {cliente}.")
+                    print(f" Área Vitals/Fleet Status encontrada e clicada com sucesso para o cliente {cliente}.")
                     break
 
             driver.find_element(By.TAG_NAME, "body").send_keys(Keys.ESCAPE)
             time.sleep(1)
 
         except Exception as e:
-            print(f"❌ Erro ao clicar em Área Vitals/Fleet Status para o cliente {cliente}: {e}\n")
+            print(f" Erro ao clicar em Área Vitals/Fleet Status para o cliente {cliente}: {e}\n")
             continue
 
         try:
@@ -166,7 +149,7 @@ def automacao_rfv():
                 EC.presence_of_element_located((By.CLASS_NAME, "cdk-overlay-backdrop"))
             )
         except TimeoutException:
-            print("⚠️ O overlay demorou para desaparecer, tentando continuar mesmo assim.")
+            print(" O overlay demorou para desaparecer, tentando continuar mesmo assim.")
 
         try:
             system_status = WebDriverWait(driver, 30).until(
@@ -174,18 +157,18 @@ def automacao_rfv():
             )
             time.sleep(1)
             system_status.click()
-            print("✅ Status do sistema clicado com sucesso.")
+            print(" Status do sistema clicado com sucesso.")
         except ElementClickInterceptedException:
-            print("⚠️ Clique interceptado — aguardando 3 segundos e tentando novamente...")
+            print(" Clique interceptado — aguardando 3 segundos e tentando novamente...")
             time.sleep(3)
             try:
                 system_status.click()
-                print("✅ Clique no status do sistema realizado na segunda tentativa.")
+                print(" Clique no status do sistema realizado na segunda tentativa.")
             except Exception as e:
-                print(f"❌ Erro ao tentar clicar novamente no status do sistema: {e}")
+                print(f" Erro ao tentar clicar novamente no status do sistema: {e}")
                 continue
         except TimeoutException:
-            print("❌ Não foi possível encontrar o status do sistema.\n")
+            print(" Não foi possível encontrar o status do sistema.\n")
             continue
 
         try:
@@ -194,9 +177,9 @@ def automacao_rfv():
             )
             time.sleep(1)
             export.click()
-            print("⌛ Exportando dados...")
+            print(" Exportando dados...")
         except TimeoutException:
-            print("⌛❌ Não foi possível encontrar o botão de exportação.\n")
+            print(" Não foi possível encontrar o botão de exportação.\n")
             continue
 
         try:
@@ -205,9 +188,9 @@ def automacao_rfv():
             )
             time.sleep(1)
             csv_button.click()
-            print("✅ Formato CSV selecionado com sucesso.")
+            print(" Formato CSV selecionado com sucesso.")
         except TimeoutException:
-            print("❌ Não foi possível encontrar o formato CSV.\n")
+            print(" Não foi possível encontrar o formato CSV.\n")
             continue
 
         time.sleep(1)

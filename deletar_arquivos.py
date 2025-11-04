@@ -8,18 +8,18 @@ evitando o acúmulo desnecessário de arquivos.
 """
 
 def deletar_arquivos():
-    print("\n--- 🧹 Iniciando limpeza dos arquivos CSV processados ---")
+    print("\n Iniciando limpeza dos arquivos CSV processados")
     load_dotenv()
     pasta_destino_rfv = os.getenv('pasta_destino_rfv')
     
     if not pasta_destino_rfv:
-        print("⚠️ [AVISO LIMPEZA] Variável 'pasta_destino_rfv' não encontrada no .env. Pulando limpeza.")
+        print(" Variável 'pasta_destino_rfv' não encontrada no .env. Pulando limpeza.")
         return
     
     var_glob = os.path.join(pasta_destino_rfv, '*.csv')
     arquivos_para_deletar = glob.glob(var_glob)
     if not arquivos_para_deletar:
-        print("ℹ️ [INFO LIMPEZA] Nenhum arquivo .csv encontrado para limpar.")
+        print("Nenhum arquivo .csv encontrado para limpar.")
         return
     
     print(f"Encontrados {len(arquivos_para_deletar)} arquivos .csv para deletar...")
@@ -27,7 +27,7 @@ def deletar_arquivos():
     for arquivo in arquivos_para_deletar:
         try:
             os.remove(arquivo)
-            print(f"✅ Deletado: {arquivo}")
+            print(f" Deletado: {arquivo}")
         except Exception as e:
-            print(f"❌ Erro ao deletar {arquivo}: {e}")
-    print("--- 🧹 Limpeza concluída ---\n")
+            print(f" Erro ao deletar {arquivo}: {e}")
+    print("Limpeza concluída\n")
