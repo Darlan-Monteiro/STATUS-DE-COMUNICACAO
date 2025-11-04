@@ -62,6 +62,6 @@ def atualizar_dados():
     ativos_atualizados.to_excel(caminho_saida, index=False)
     print(f"\n✅ Planilha atualizada salva em: {caminho_saida}")
 
-if __name__ == "__main__":
-    atualizar_dados()
+#if __name__ == "__main__":
+atualizar_dados()
     

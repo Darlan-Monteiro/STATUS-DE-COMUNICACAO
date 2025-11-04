@@ -23,14 +23,87 @@ def config_navegador():
     driver.get(site_rfv)
     return driver
 
+def login():
+    cws = input("Insira o Seu CWS: ")
+    senha = input("Insira a Sua Senha: ")
+    return cws, senha
+
+
+# Importe esta exceção no topo do seu arquivo, se já não estiver lá
+from selenium.common.exceptions import TimeoutException
+
+# ... (o resto dos seus imports e a função login) ...
 
 def automacao_rfv():
+    cws, senha = login()
     driver = config_navegador()
     caminho_base_cleinte = os.getenv('base_clientes')
     base_cliente = caminho_base_cleinte
     base_clientes = pl.read_excel(base_cliente)
     coluna_clientes = 'Clientes'
     clientes = base_clientes[coluna_clientes].to_list()
+    
+    # --- LOGIN RFV (TENTATIVA ÚNICA - LÓGICA ALTERNATIVA) ---
+    print(f"Tentando login com o CWS: {cws}")
+    
+    try:
+        # --- ETAPA 1: Inserir CWS ---
+        campo_cws = WebDriverWait(driver, 180).until(
+            EC.visibility_of_element_located((By.ID, 'signInName'))
+        )
+        campo_cws.clear()
+        campo_cws.send_keys(cws)
+        
+        botao_continuar = driver.find_element(By.ID, 'next')
+        botao_continuar.click()
+            
+        # --- ETAPA 2: LÓGICA SEM 'EC.or_' ---
+        print("Verificando se a senha é necessária...")
+        
+        try:
+            # Tenta encontrar o campo de senha com um tempo CURTO (5 segundos)
+            campo_senha = WebDriverWait(driver, 5).until(
+                EC.visibility_of_element_located((By.ID, 'i0118'))
+            )
+            
+            # --- CAMINHO A: Pediu a senha ---
+            print("Senha necessária. Inserindo senha...")
+            campo_senha.clear()
+            campo_senha.send_keys(senha)
+            campo_senha.send_keys(Keys.ENTER)
+            
+            # Agora, espera pelo dashboard (espera longa, 15s)
+            print("Verificando o login após a senha...")
+            WebDriverWait(driver, 15).until(
+                EC.visibility_of_element_located((By.XPATH, '//*[@id="involve-select-0"]/div[1]/input'))
+            )
+            
+        except TimeoutException:
+            # --- CAMINHO B: Não pediu a senha (Timeout de 5s) ---
+            print("Campo de senha não encontrado. Verificando login automático...")
+            
+            # Se não achou a senha, procura o dashboard (espera longa, 15s)
+            WebDriverWait(driver, 15).until(
+                EC.visibility_of_element_located((By.XPATH, '//*[@id="involve-select-0"]/div[1]/input'))
+            )
+            print("Login automático (sem senha) detectado.")
+
+        # Se o script chegou aqui por qualquer um dos caminhos, o login foi OK
+        print("✅ Login realizado com sucesso!")
+
+    except TimeoutException:
+        # Se QUALQUER uma das esperas longas falhar (Etapa 1, ou as esperas do Dashboard),
+        # o script vai cair AQUI.
+        print("\n" + "="*40)
+        print("❌ ERRO FATAL: Login falhou.")
+        print("   Verifique seu CWS/Senha ou se a página mudou.")
+        print("   Encerrando o programa.")
+        print("="*40 + "\n")
+        
+        driver.quit() # Fecha o navegador
+        return        # Para a execução da função (e do script)
+
+        
     
     for cliente in clientes:
         try:
