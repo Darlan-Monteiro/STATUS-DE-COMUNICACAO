@@ -1,6 +1,6 @@
 import requests
 import os
-import winreg # para ler o registro do Windows e descobrir a versão do Edge
+import winreg # serve pra ler o registro do windows e descobrir a versão do edge
 from bs4 import BeautifulSoup
 import zipfile
 from io import BytesIO
