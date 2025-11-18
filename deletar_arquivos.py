@@ -27,7 +27,7 @@ def deletar_arquivos():
     for arquivo in arquivos_para_deletar:
         try:
             os.remove(arquivo)
-            print(f" Deletado: {arquivo}")
+            print(f"Deletado: {arquivo}")
         except Exception as e:
-            print(f" Erro ao deletar {arquivo}: {e}")
+            print(f"Erro ao deletar {arquivo}: {e}")
     print("Limpeza concluída\n")
