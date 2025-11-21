@@ -8,7 +8,6 @@ from baixar_edge_atual import gerenciar_edgedriver
 
 def atualizar_dados():
     gerenciar_edgedriver()  # Garante que o EdgeDriver está atualizado
-    
     automacao_rfv()  # Executa automação RFV
     
     # Processa os dados e retorna o caminho do arquivo e a lista de SNs que precisam de atualização
@@ -29,7 +28,7 @@ def atualizar_dados():
         sn = str(sn).strip()
 
         try:
-            data_dict = pd.to_datetime(data_str, errors='coerce', dayfirst=True)
+            data_dict = pd.to_datetime(data_str, errors='coerce', dayfirst=False)
             if pd.isna(data_dict):
                 print(f"Data inválida para {sn}: '{data_str}'\n")
                 continue
