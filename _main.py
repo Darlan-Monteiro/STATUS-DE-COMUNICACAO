@@ -5,6 +5,7 @@ from processamento_dados import processar_dados
 from rfv_automacao_selenium import automacao_rfv
 from baixar_edge_atual import gerenciar_edgedriver
 
+
 def atualizar_dados():
     ''' O gerenciar_edgedriver garante que o msedgedriver.exe esteja atualizado/instalado antes de iniciar a automação '''
     gerenciar_edgedriver()
