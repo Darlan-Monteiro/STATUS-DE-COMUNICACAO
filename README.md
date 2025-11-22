@@ -64,6 +64,8 @@ A automação consulta duas fontes de dados (Portais RFV e DSP), consolida as in
     Crie um arquivo chamado `.env` na raiz do projeto e preencha com os seus caminhos locais:
 
     ```env
+    EXEMPLOS:
+    
     # Caminhos de Perfil do Navegador (Para manter login salvo)
     caminho_user_rfv="C:\Users\SEU_USER\AppData\Local\Microsoft\Edge\User Data\Perfil_RFV"
     caminho_user_chorme="C:\Users\SEU_USER\AppData\Local\Microsoft\Edge\User Data\Perfil_DSP"
