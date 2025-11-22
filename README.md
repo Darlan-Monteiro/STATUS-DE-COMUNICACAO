@@ -98,14 +98,12 @@ STATUS-DE-COMUNICACAO/
 ├── rfv_automacao_selenium.py   # Bot: Coleta dados do RFV
 ├── dsp_automacao_selenium.py   # Bot: Coleta dados do DSP
 ├── processamento_dados.py      # ETL: Trata dados e atualiza Excel
-
+├── deletar_arquivos.py         # Utils: Limpa arquivos CSV temporários
+├── .gitignore                  # Arquivos ignorados pelo Git
+└── README.md                   # Documentação do projeto
 
 
 
 📄 Licença
 Este projeto está sob a licença MIT - veja o arquivo LICENSE para detalhes.
-
 Desenvolvido por Darlan Monteiro
-├── deletar_arquivos.py         # Utils: Limpa arquivos CSV temporários
-├── .gitignore                  # Arquivos ignorados pelo Git
-└── README.md                   # Documentação do projeto
