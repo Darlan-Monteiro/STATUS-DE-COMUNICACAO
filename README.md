@@ -42,7 +42,7 @@ A automação consulta duas fontes de dados (Portais RFV e DSP), consolida as in
 
 1.  **Clone o repositório:**
     ```bash
-    git clone [https://github.com/SEU-USUARIO/status-de-comunicacao.git](https://github.com/SEU-USUARIO/status-de-comunicacao.git)
+    git clone https://github.com/Darlan-Monteiro/STATUS-DE-COMUNICACAO.git
     cd status-de-comunicacao
     ```
 
