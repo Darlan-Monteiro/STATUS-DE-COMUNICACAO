@@ -52,9 +52,3 @@
         
     #     driver.quit()
     #     return        
-
-from tqdm import tqdm
-import time
-# Exemplo básico com tqdm
-for _ in tqdm(range(100), desc="Processando"):
-   time.sleep(0.05) # Simula uma tarefa

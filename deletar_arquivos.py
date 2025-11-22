@@ -2,11 +2,13 @@ import os
 import glob
 from dotenv import load_dotenv
 
+# ---- ETAPA 5 ----:
+
 """ 
 Criei este script para deletar os arquivos .csv que foram processados e estão na pasta destino_rfv,
 evitando o acúmulo desnecessário de arquivos.
 """
-
+# Função para deletar os arquivos .csv processados
 def deletar_arquivos():
     print("\n Iniciando limpeza dos arquivos CSV processados")
     load_dotenv()
@@ -16,6 +18,7 @@ def deletar_arquivos():
         print(" Variável 'pasta_destino_rfv' não encontrada no .env. Pulando limpeza.")
         return
     
+    # Usa glob para encontrar todos os arquivos .csv na pasta destino_rfv
     var_glob = os.path.join(pasta_destino_rfv, '*.csv')
     arquivos_para_deletar = glob.glob(var_glob)
     if not arquivos_para_deletar:
@@ -24,6 +27,7 @@ def deletar_arquivos():
     
     print(f"Encontrados {len(arquivos_para_deletar)} arquivos .csv para deletar...")
     
+    # Loop para deletar cada arquivo encontrado
     for arquivo in arquivos_para_deletar:
         try:
             os.remove(arquivo)
