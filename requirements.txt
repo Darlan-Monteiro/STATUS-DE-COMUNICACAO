@@ -1,0 +1,8 @@
+pandas
+polars
+selenium
+python-dotenv
+beautifulsoup4
+requests
+openpyxl
+webdriver-manager
