@@ -1,3 +1,8 @@
+"""
+Código para automação do site DSP usando Selenium.
+O objetivo é percorrer todas as datas que não foram atualizadas após o processamento de dados.
+"""
+
 import os
 import time
 from selenium import webdriver
@@ -13,8 +18,10 @@ from selenium.common.exceptions import TimeoutException, NoSuchElementException
 # ---- ETAPA 4 ----:
 
 
-''' Função para configurar o navegador Edge com perfil de usuário específico e acessar o site DSP '''
-def config_navegador():
+def config_navegador(): 
+    """ 
+    Função para configurar o navegador Edge com perfil de usuário específico e acessar o site DSP.
+    """
     load_dotenv()
     caminho_user_chorme = os.getenv('caminho_user_chorme')
     site_dsp = os.getenv('site_dsp')
@@ -26,16 +33,18 @@ def config_navegador():
     driver.get(site_dsp)
     return driver
 
-''' Função principal para automação no site DSP. 
-    O objetivo aqui é percorrer todas as datas que não foram atualizadas após o processamento de dados.'''
 def web(sn_lista): 
+    """ 
+    Função principal para automação no site DSP.
+    Recebe uma lista de SNs e retorna um dicionário com a data da última comunicação.
+    """
+    
     driver = config_navegador() # Inicia o navegador com a função config_navegador
         
     data = {} # Dicionário para armazenar os resultados de última comunicação
     for sn in sn_lista:
         try:
-            ''' O site DSP pode demorar para carregar, então busquei o loader do site 
-                para garantir que a página esteja pronta antes de prosseguir '''
+            # O site DSP pode demorar para carregar, então busquei o loader do site para garantir que a página esteja pronta antes de prosseguir
             loader_locator = (By.TAG_NAME, "dsp-next-gen-ui-loader")
 
             # Espera o loader desaparecer
@@ -47,7 +56,7 @@ def web(sn_lista):
                 )
             )
             busca.click()
-            ''' Bloco para limpar o campo de busca antes de inserir o novo SN '''
+            # Bloco para limpar o campo de busca antes de inserir o novo SN
             busca.send_keys(Keys.CONTROL + "a")
             busca.send_keys(Keys.DELETE)
             time.sleep(0.5)
@@ -60,8 +69,8 @@ def web(sn_lista):
             WebDriverWait(driver, 30).until(
                 EC.invisibility_of_element_located(loader_locator)
             )
-            ''' Bloco para localizar o elemento do SN na lista de resultados.
-                Aqui ele pega o SN e faz uma busca dele na página'''
+            # Bloco para localizar o elemento do SN na lista de resultados.
+            # Aqui ele pega o SN e faz uma busca dele na página
             lista_sn_elementos = WebDriverWait(driver, 120).until(
                 EC.presence_of_all_elements_located((By.ID, 'td-0-0')
                 )

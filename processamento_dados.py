@@ -1,3 +1,8 @@
+""" 
+Código para processar os dados dos arquivos CSV exportados do RFV 
+e atualizar a planilha de ativos. 
+"""
+
 import os
 import shutil
 import pandas as pd
@@ -7,9 +12,8 @@ from dotenv import load_dotenv
 
 # ---- ETAPA 3 ----:
 
-'''' Código para processar os dados dos arquivos CSV exportados do RFV e atualizar a planilha de ativos. '''
 
-''' Bloco que carrega as variáveis de ambiente do arquivo .env '''
+# Bloco que carrega as variáveis de ambiente do arquivo .env
 load_dotenv()
 caminho_bdrfv = os.getenv('caminho_bdrfv')
 #caminho_bdativos = os.getenv('caminho_bdativos') 
@@ -22,15 +26,17 @@ user_docs = Path.home() / "Sotreq" / "Sol. Tec - Documentos" / "01 - Controle de
 caminho_bdativos = user_docs / "2 - Ativos Cat Connect.xlsm"
 
 
-''' Função para ler os arquivos baixados do RFV e concatenar em um único DataFrame '''
 def ler_base():
+    """ 
+    Função para ler os arquivos baixados do RFV e concatenar em um único DataFrame 
+    """
     arquivos = sorted(glob(caminho_bdrfv))
     if not arquivos:
         print("Nenhum arquivo encontrado na pasta especificada.")
         return None
 
     lista_df = [] # Lista para armazenar os df lidos
-    ''' Loop para ler cada arquivo e adicionar à lista '''
+    # Loop para ler cada arquivo e adicionar à lista
     for arquivo in arquivos:
         try:
             df = pd.read_csv(arquivo, encoding='latin1', sep=',')
@@ -48,8 +54,10 @@ def ler_base():
     return pd.concat(lista_df, ignore_index=True) 
 
 
-''' Função para ler a planilha de ativos Cat Connect e pegar só a aba "Ativos"'''
 def ler_planilha_ativos():
+    """ 
+    Função para ler a planilha de ativos Cat Connect e pegar só a aba Ativos
+    """
     caminho_ativos = caminho_bdativos
     aba_ativos = 'Ativos'
     
@@ -63,18 +71,24 @@ def ler_planilha_ativos():
         return None
     
     
-''' Função para remover os 8 últimos caracteres de uma string. '''
 def remover_separador(separador):
+    """ 
+    Função para remover os 8 últimos caracteres de uma string
+    """
+    
     if isinstance(separador, str):
         return separador[-8:].strip()
     
     
-''' Função principal para processar os dados '''    
 def processar_dados():
-    
+    """ 
+    Função principal para processar os dados.
+    Move arquivos, lê bases, compara e atualiza a planilha
+    """
+   
     print("\n Iniciando o processamento dos dados...")
     
-    ''' Bloco que move os arquivos CSV da pasta de downloads para a pasta destino_rfv '''
+    # Bloco que move os arquivos CSV da pasta de downloads para a pasta destino_rfv
     pasta_origem = Path.home() / "Downloads"
     pasta_destino = Path(pasta_destino_rfv)    
     pasta_destino.mkdir(parents=True, exist_ok=True)
@@ -89,8 +103,7 @@ def processar_dados():
                 print(f"Erro ao mover {arquivo.name}: {e}")
 
 
-    ''' Chamando as funções para ler as bases e verificando se há erros '''
-    # chamando as funções para ler as bases
+    # Chamando as funções para ler as bases e verificando se há erros
     bases_concat = ler_base()
     ativos = ler_planilha_ativos()
     coluna_bdconcat = 'Unit Name'
@@ -104,20 +117,20 @@ def processar_dados():
     if coluna_bdconcat not in bases_concat.columns or coluna_bdativos not in ativos.columns: 
         print("Colunas não encontradas em um dos arquivos.")
         exit()
-     
-    ''' Bloco para verificar quais assets não estão presentes na coluna NºSÉRIE '''    
+    
+    # Bloco para verificar quais assets não estão presentes na coluna NºSÉRIE    
     asset_name_modificado = bases_concat[coluna_bdconcat].astype(str).apply(remover_separador)
     num_series = ativos[coluna_bdativos].astype(str)
     
-    ''' Bloco para modificar a coluna NºSÉRIE aplicando split('/') e removendo espaços.
-        O objetivo é separar números de série que estão juntos na mesma célula, como 12345/67890'''
+    # Bloco para modificar a coluna NºSÉRIE aplicando split('/') e removendo espaços.
+    # O objetivo é separar números de série que estão juntos na mesma célula, como 12345/67890
     num_series_modificado = set()
     for num in num_series:
         partes = num.split('/')
         for serie in partes:
             num_series_modificado.add(serie.strip())
             
-    ''' Bloco para comparar as duas listas e identificar quais assets não estão presentes em NºSÉRIE '''
+    # Bloco para comparar as duas listas e identificar quais assets não estão presentes em NºSÉRIE 
     lista_nao_contem = []
     for asset_name in asset_name_modificado:
         for n_serie in num_series_modificado:
@@ -129,12 +142,12 @@ def processar_dados():
             print(f'{asset_name} NÃO está presente em NºSÉRIE.')
             lista_nao_contem.append(asset_name)
      
-    ''' Bloco para atualizar a coluna Data Última Comunicação na planilha de ativos '''        
+    # Bloco para atualizar a coluna Data Última Comunicação na planilha de ativos        
     ativos['Data Última Comunicação'] = ativos['Data Última Comunicação'].replace(['-', '', 'NaT'], pd.NaT)
     ativos['Data Última Comunicação'] = pd.to_datetime(ativos['Data Última Comunicação'], errors='coerce') 
     bases_concat['Sample Time'] = pd.to_datetime(bases_concat['Sample Time'], errors='coerce')
     
-    ''' Bloco para comparar as datas e atualizar a planilha de ativos '''
+    # Bloco para comparar as datas e atualizar a planilha de ativos 
     nao_atualizados_ultima_comunicacao = []
     for i, linha in bases_concat.iterrows():
         # Aplica a função para remover os separadores para pegar os últimos 8 caracteres
@@ -152,7 +165,7 @@ def processar_dados():
                 nao_atualizados_ultima_comunicacao.append(asset_name)
                 
                 
-    ''' Bloco para exibir os resultados via print'''        
+    # Bloco para exibir os resultados via print        
     print(ativos[['NºSÉRIE', 'Data Última Comunicação', 'Data Último Envio de Dados']])
     print("\n\n Assets não atualizados para Data Última Comunicação:")
     print(nao_atualizados_ultima_comunicacao)
@@ -160,7 +173,7 @@ def processar_dados():
     print("\n\n Assets que não contém na lista:")
     print(lista_nao_contem)
     
-    ''' Bloco para salvar a planilha atualizada '''
+    # Bloco para salvar a planilha atualizada
     caminho_saida = caminho_ativosatt
     ativos.to_excel(caminho_saida, index=False)
     print(f"\n\n Tabela atualizada salva em Sol. Tec - Documentos\Projeto Status de Comunicação\ com o nome de: {caminho_saida}")

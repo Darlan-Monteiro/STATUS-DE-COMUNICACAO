@@ -1,15 +1,20 @@
+""" 
+Criei este script para deletar os arquivos .csv que foram processados e estão na pasta destino_rfv,
+evitando o acúmulo desnecessário de arquivos.
+"""
+
 import os
 import glob
 from dotenv import load_dotenv
 
 # ---- ETAPA 5 ----:
 
-""" 
-Criei este script para deletar os arquivos .csv que foram processados e estão na pasta destino_rfv,
-evitando o acúmulo desnecessário de arquivos.
-"""
 # Função para deletar os arquivos .csv processados
 def deletar_arquivos():
+    """ 
+    Função para deletar os arquivos .csv processados da pasta de destino.
+    Verifica se a pasta existe e remove todos os arquivos com extensão .csv.
+    """
     print("\n Iniciando limpeza dos arquivos CSV processados")
     load_dotenv()
     pasta_destino_rfv = os.getenv('pasta_destino_rfv')

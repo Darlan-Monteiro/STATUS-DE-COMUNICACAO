@@ -1,3 +1,9 @@
+"""
+Criei este script para baixar o msedgedriver.exe automaticamente,
+verificando a versão do Microsoft Edge instalada no sistema.
+O objetivo é garantir que o driver esteja sempre atualizado e compatível com o navegador 
+"""
+
 import os
 import winreg # serve pra ler o registro do windows e descobrir a versão do edge
 import zipfile
@@ -7,12 +13,11 @@ from bs4 import BeautifulSoup
 
 # ---- ETAPA 1 ----:
 
-''' Criei este script para baixar o msedgedriver.exe automaticamente,
-    verificando a versão do Microsoft Edge instalada no sistema.
-    O objetivo é garantir que o driver esteja sempre atualizado e compatível com o navegador '''
 
 def get_local_edge_version():
-    # Verifica no registro do Windows a versão do Microsoft Edge instalada
+    """ 
+    Verifica no registro do Windows a versão do Microsoft Edge instalada 
+    """
     try:
         key = winreg.OpenKey(winreg.HKEY_CURRENT_USER, r"Software\Microsoft\Edge\BLBeacon")
         version, _ = winreg.QueryValueEx(key, "version")
@@ -23,10 +28,11 @@ def get_local_edge_version():
         return None
 
 
-''' Função que verifica se o msedgedriver.exe existe e, se não, baixa a versão correta,
-    extrai e coloca na pasta do projeto
-    '''
 def gerenciar_edgedriver():
+    """ 
+    Função que verifica se o msedgedriver.exe existe e, se não, baixa a versão correta,
+    extrai e coloca na pasta do projeto
+    """
     if os.path.exists("msedgedriver.exe"):
         print("O arquivo msedgedriver.exe já existe. Pulando a parte do download.")
         return True
@@ -42,7 +48,7 @@ def gerenciar_edgedriver():
     url = "https://developer.microsoft.com/en-us/microsoft-edge/tools/webdriver/"
     print(f"Acessando a página de drivers: {url}")
     try:
-        ''' Busca a página e faz o parsing com BeautifulSoup '''
+        # Busca a página e faz o parsing com BeautifulSoup
         response = requests.get(url)
         response.raise_for_status()
     except requests.exceptions.RequestException as e:

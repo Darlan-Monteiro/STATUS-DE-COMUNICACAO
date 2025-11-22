@@ -1,3 +1,9 @@
+"""
+Código para automação do site RFV usando Selenium.
+O objetivo é iterar sobre uma lista de clientes, selecionar cada um no site,
+navegar até a seção "Área Vitals/Fleet Status" e exportar os dados em formato CSV.
+"""
+
 import os
 import time
 import polars as pl
@@ -13,8 +19,10 @@ from selenium.common.exceptions import TimeoutException, ElementClickIntercepted
 
 # ---- ETAPA 2 ----:
 
-''' Função para configurar o navegador Edge com perfil de usuário específico e acessar o site RFV '''
 def config_navegador():
+    """ 
+    Função para configurar o navegador Edge com perfil de usuário específico e acessar o site RFV 
+    """
     load_dotenv()
     caminho_user_rfv = os.getenv('caminho_user_rfv')
     site_rfv = os.getenv('site_rfv')
@@ -27,11 +35,11 @@ def config_navegador():
     return driver
 
 
-''' Função principal para automação no site RFV.
-    O objetivo é iterar sobre uma lista de clientes
-    Selecionar cada um no site.
-    Navegar até a seção "Área Vitals/Fleet Status" e exportar os dados em formato CSV.'''
 def automacao_rfv():
+    """ 
+    Função principal para automação no site RFV.
+    O objetivo aqui é iterar sobre a lista de clientes e exportar os dados necessários.
+    """
     driver = config_navegador()
     caminho_base_cleinte = os.getenv('base_clientes')
     base_cliente = caminho_base_cleinte
@@ -39,11 +47,11 @@ def automacao_rfv():
     coluna_clientes = 'Clientes'
     clientes = base_clientes[coluna_clientes].to_list()
 
-    ''' for para iterar sobre a lista de clientes e realizar as ações necessárias no site RFV.
-        '''    
+    # for para iterar sobre a lista de clientes e realizar as ações necessárias no site RFV.
+    # Este bloco tenta localizar e interagir com o dropdown de seleção de clientes no site RFV
     for cliente in clientes:
         try:
-            ''' Este bloco tenta localizar e interagir com o dropdown de seleção de clientes no site RFV'''
+            
             print(f"\n")
             # Encontra o xpath do dropdown para colocar o cliente
             dropdown_abrir = WebDriverWait(driver, 130).until(
@@ -67,9 +75,9 @@ def automacao_rfv():
             continue
         
         
+        # Este bloco tenta localizar e interagir com os checkboxes de termos de uso no site RFV.
+        # Só será executado se os termos de uso aparecerem na tela
         try:
-            ''' Este bloco tenta localizar e interagir com os checkboxes de termos de uso no site RFV.
-                Só será executado se os termos de uso aparecerem na tela'''
             if True:
                 checkbox__square_superior = WebDriverWait(driver, 10).until(
                     EC.element_to_be_clickable((By.CSS_SELECTOR, "label[for='involve-checkbox-0']")
@@ -93,7 +101,7 @@ def automacao_rfv():
         except:
             pass
                        
-        ''' Este bloco tenta navegar até a aba do cliente'''    
+        # Este bloco tenta navegar até a aba do cliente   
         try:
             seta_aba_cliente = WebDriverWait(driver, 130).until(
                 EC.element_to_be_clickable((By.XPATH, '/html/body/app/div[1]/ng-component/sitemapgroup-dashboard/ng-component/breadcrumb/div/div[1]/span[2]')
@@ -105,7 +113,7 @@ def automacao_rfv():
             continue
 
 
-        ''' Este bloco tenta localizar e clicar na seção "Área Vitals/Fleet Status" no site RFV'''
+        # Este bloco tenta localizar e clicar na seção "Área Vitals/Fleet Status" no site RFV
         try:
             
             selecionar_menu_opçoes = WebDriverWait(driver, 60).until(
@@ -114,7 +122,7 @@ def automacao_rfv():
             )
             selecionar_menu_opçoes.click()
             
-            '''Aqui eu estou pegando todos os elementos h3 que aparecem no overlay do menu'''
+            # Aqui eu estou pegando todos os elementos h3 que aparecem no overlay do menu
             lista_h3 = WebDriverWait(driver, 60).until(
                 EC.presence_of_all_elements_located((By.XPATH, '//div[contains(@id, "cdk-overlay")]/div/div/div//h3')
                 )
@@ -134,9 +142,9 @@ def automacao_rfv():
             continue
 
 
-        ''' Este bloco tenta exportar os dados do sistema em formato CSV'''
+        # Este bloco tenta exportar os dados do sistema em formato CSV
         try:
-            ''' Espera o overlay de carregamento desaparecer antes de prosseguir'''
+            # Espera o overlay de carregamento desaparecer antes de prosseguir
             WebDriverWait(driver, 15).until_not(
                 EC.presence_of_element_located((By.CLASS_NAME, "cdk-overlay-backdrop")
                 )
@@ -145,7 +153,7 @@ def automacao_rfv():
             print(" O overlay demorou para desaparecer, tentando continuar mesmo assim.")
 
 
-        ''' Espera o botão de status do sistema estar clicável '''
+        # Espera o botão de status do sistema estar clicável
         try:
             system_status = WebDriverWait(driver, 30).until(
                 EC.element_to_be_clickable((By.CLASS_NAME, 'menu-button')
@@ -165,7 +173,7 @@ def automacao_rfv():
             print(" Não foi possível encontrar o status do sistema.\n")
             continue
         
-        ''' Este bloco é para clicar no botão de exportação'''
+        # Este bloco é para clicar no botão de exportação
         try:
             export = WebDriverWait(driver, 30).until(
                 EC.element_to_be_clickable((By.XPATH, '//system-status-tile-v2//involve-datasource-export//button')
@@ -177,7 +185,7 @@ def automacao_rfv():
             print(" Não foi possível encontrar o botão de exportação.\n")
             continue
         
-        ''' Este bloco é para selecionar o formato CSV na exportação'''
+        # Este bloco é para selecionar o formato CSV na exportação
         try:
             csv_button = WebDriverWait(driver, 30).until(
                 EC.element_to_be_clickable((By.XPATH, "//div[contains(text(), 'CSV')]")
