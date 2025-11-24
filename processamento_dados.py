@@ -75,7 +75,6 @@ def remover_separador(separador):
     """ 
     Função para remover os 8 últimos caracteres de uma string
     """
-    
     if isinstance(separador, str):
         return separador[-8:].strip()
     

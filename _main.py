@@ -1,5 +1,5 @@
 """
-Script principal (Orquestrador).
+Script principal.
 Este arquivo centraliza a execução de todo o processo de automação:
 gerencia o driver, roda as automações do RFV e DSP, processa os dados e salva o Excel.
 """
@@ -9,16 +9,14 @@ from dsp_automacao_selenium import web
 from deletar_arquivos import deletar_arquivos
 from processamento_dados import processar_dados
 from rfv_automacao_selenium import automacao_rfv
-from baixar_edge_atual import gerenciar_edgedriver
+#from baixar_edge_atual import gerenciar_edgedriver
 
 def atualizar_dados():
     """
     Função que executa o fluxo sequencial de atualização.
-    1. Verifica Driver -> 2. RFV -> 3. Processamento -> 4. DSP -> 5. Salva Excel.
+    1. Verifica Driver - 2. RFV - 3. Processamento - 4. DSP - 5. Salva Excel.
     """
-    # O gerenciar_edgedriver garante que o msedgedriver.exe esteja atualizado/instalado antes de iniciar a automação
-    gerenciar_edgedriver()
-    
+
     # Inicia a automação para processar os clientes no site RFV
     automacao_rfv()
     
@@ -80,4 +78,4 @@ def atualizar_dados():
     print(f"\n Planilha atualizada salva em: {caminho_saida}")
     
 if __name__ == "__main__":
-    atualizar_dados() 
+    atualizar_dados()

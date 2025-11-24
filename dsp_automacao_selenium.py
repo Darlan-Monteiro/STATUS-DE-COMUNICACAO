@@ -1,5 +1,5 @@
 """
-Código para automação do site DSP usando Selenium.
+Código para automação do site DSP usando Selenium (Versão Chrome).
 O objetivo é percorrer todas as datas que não foram atualizadas após o processamento de dados.
 """
 
@@ -12,24 +12,41 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-#from webdriver_manager.microsoft import EdgeChromiumDriverManager
 from selenium.common.exceptions import TimeoutException, NoSuchElementException
+
+# Gerenciador automático do Chrome
+from webdriver_manager.chrome import ChromeDriverManager
 
 # ---- ETAPA 4 ----:
 
-
 def config_navegador(): 
     """ 
-    Função para configurar o navegador Edge com perfil de usuário específico e acessar o site DSP.
+    Função para configurar o Google Chrome com Perfil Persistente (DSP).
     """
     load_dotenv()
-    caminho_user_chorme = os.getenv('caminho_user_chorme')
     site_dsp = os.getenv('site_dsp')
-    s = Service(r'./msedgedriver.exe')
-    #s = Service(EdgeChromiumDriverManager().install())
-    dsp_automation = webdriver.EdgeOptions()
-    dsp_automation.add_argument(caminho_user_chorme)
-    driver = webdriver.Edge(service=s, options=dsp_automation)
+    
+    chrome_options = webdriver.ChromeOptions()
+    
+    # Cria um perfil no chrome para salvar sessão e cookies. gera uma pasta na raiz do projeto
+    dir_path = os.getcwd()
+    profile_path = os.path.join(dir_path, "chrome_perfil_dsp")
+    chrome_options.add_argument(f"user-data-dir={profile_path}")
+
+    chrome_options.add_argument("--start-maximized")
+    chrome_options.add_argument("--disable-infobars")
+    chrome_options.add_argument("--disable-search-engine-choice-screen")
+
+    # Instala/Atualiza driver
+    try:
+        driver_path = ChromeDriverManager().install()
+    except:
+        print("Falha na instalação automática. Tentando versão forçada...")
+        driver_path = ChromeDriverManager(driver_version="142.0.7444.176").install()
+
+    servico = Service(driver_path)
+    driver = webdriver.Chrome(service=servico, options=chrome_options)
+    
     driver.get(site_dsp)
     return driver
 
@@ -38,114 +55,116 @@ def web(sn_lista):
     Função principal para automação no site DSP.
     Recebe uma lista de SNs e retorna um dicionário com a data da última comunicação.
     """
-    
-    driver = config_navegador() # Inicia o navegador com a função config_navegador
+    driver = config_navegador()
         
-    data = {} # Dicionário para armazenar os resultados de última comunicação
+    data = {} 
+    
     for sn in sn_lista:
         try:
-            # O site DSP pode demorar para carregar, então busquei o loader do site para garantir que a página esteja pronta antes de prosseguir
+            print(f"Iniciando busca para: {sn}")
+            
+            # Locator do loader (carregamento)
             loader_locator = (By.TAG_NAME, "dsp-next-gen-ui-loader")
 
-            # Espera o loader desaparecer
-            WebDriverWait(driver, 30).until(
-                EC.invisibility_of_element_located(loader_locator)
-            )
+            # Espera inicial e limpeza de tela
+            WebDriverWait(driver, 30).until(EC.invisibility_of_element_located(loader_locator))
+            
+            # Busca segura (evita erro de clique interceptado)
             busca = WebDriverWait(driver, 120).until(
-                EC.presence_of_element_located((By.CLASS_NAME, 'input-field')
-                )
+                EC.element_to_be_clickable((By.CLASS_NAME, 'input-field'))
             )
-            busca.click()
-            # Bloco para limpar o campo de busca antes de inserir o novo SN
+            
+            # Garante que o campo está visível e clica
+            driver.execute_script("window.scrollTo(0, 0);")
+            time.sleep(1) 
+            try:
+                busca.click()
+            except:
+                driver.execute_script("arguments[0].click();", busca)
+            
+            # Limpa e insere o SN
             busca.send_keys(Keys.CONTROL + "a")
             busca.send_keys(Keys.DELETE)
             time.sleep(0.5)
-            
-            # Insere o SN e pressiona Enter
             busca.send_keys(sn + Keys.ENTER)
-
-
-            # Novamente espera o loader desaparecer
-            WebDriverWait(driver, 30).until(
-                EC.invisibility_of_element_located(loader_locator)
-            )
-            # Bloco para localizar o elemento do SN na lista de resultados.
-            # Aqui ele pega o SN e faz uma busca dele na página
+         
+            # Espera carregar resultados da tabela
+            WebDriverWait(driver, 30).until(EC.invisibility_of_element_located(loader_locator))
+            
+            # Localiza elementos na lista
             lista_sn_elementos = WebDriverWait(driver, 120).until(
-                EC.presence_of_all_elements_located((By.ID, 'td-0-0')
-                )
+                EC.presence_of_all_elements_located((By.ID, 'td-0-0'))
             )
-            # Buscando SN na lista de elementos encontrados
+            
+            # Bloco para encontrar o SN na lista
+            encontrou = False
             for sn_elemento in lista_sn_elementos:
                 if sn in sn_elemento.text.upper():
                     time.sleep(0.5)
+                    WebDriverWait(driver, 30).until(EC.invisibility_of_element_located(loader_locator))
                     sn_elemento.click()
+                    print(f"SN {sn} encontrado e clicado.")
+                    encontrou = True
                     break            
-            else:
+            
+            if not encontrou:
                 print(f"Elemento não encontrado: {sn}")
                 data[sn] = "Elemento não encontrado"
                 continue
             
-            # Espera o loader desaparecer novamente
-            WebDriverWait(driver, 30).until(
-                EC.invisibility_of_element_located(loader_locator)
-                )
-            
-            # Esperar engrenagem estar clicável
+            # Clica na engrenagem (Device Details)
             engrenagem_device_information = WebDriverWait(driver, 120).until(
                 EC.element_to_be_clickable(
-                    (By.XPATH, '//*[@id="asset-drawer-container"]/div/div[1]/div/div[2]/dsp-next-gen-ui-dft-asset-device-details/div/cc-card/div/cc-card-content/div/div[1]/div[2]/img')
+                    (By.CLASS_NAME, 'settingsIconStyle')
                 )
             )
-            # Scroll até o elemento e tentar clicar
-            driver.execute_script("arguments[0].scrollIntoView(true);", engrenagem_device_information)
-            time.sleep(0.5)
-            try:                
-                engrenagem_device_information.click()
-            except Exception as e:
-                print(f"Erro ao clicar na engrenagem (tentando via JS): {e}")
-                driver.execute_script("arguments[0].click();", engrenagem_device_information)
-
-            # Espera o loader desaparecer novamente
-            WebDriverWait(driver, 30).until(
-                EC.invisibility_of_element_located(loader_locator)
-            )
+            
+            WebDriverWait(driver, 30).until(EC.invisibility_of_element_located(loader_locator))   
+            time.sleep(1)           
+            engrenagem_device_information.click()
+        
+            # Pega a data
+            WebDriverWait(driver, 30).until(EC.invisibility_of_element_located(loader_locator))
+            
             last_check_in = WebDriverWait(driver, 120).until(
-                EC.element_to_be_clickable((By.XPATH, '//*[@id="device-status"]/div[2]/div[1]/div/div/div[3]/div[1]/span[2]')
-                )
+                EC.element_to_be_clickable((By.XPATH, '//*[@id="device-status"]/div[2]/div[1]/div/div/div[3]/div[1]/span[2]'))
             ).text
-            # Armazena o resultado no dicionário
+            
             data[sn] = last_check_in
+            print(f"Data coletada: {last_check_in}")
 
-            # Fecha a aba de status do dispositivo
-            WebDriverWait(driver, 30).until(
-                EC.invisibility_of_element_located(loader_locator)
-            )
-            x_device_status = WebDriverWait(driver, 120).until(
-                EC.element_to_be_clickable((By.XPATH, '//*[@id="device-status"]/div[1]/div/div/cc-icon')
+            # Fecha as abas
+            WebDriverWait(driver, 30).until(EC.invisibility_of_element_located(loader_locator))
+            
+            # Bloco para fechar a aba de Device Status
+            try:
+                x_device_status = WebDriverWait(driver, 10).until(
+                    EC.element_to_be_clickable((By.XPATH, '//*[@id="device-status"]/div[1]/div/div/cc-icon'))
                 )
-            )
-            time.sleep(0.5)
-            x_device_status.click()
+                WebDriverWait(driver, 30).until(EC.invisibility_of_element_located(loader_locator))
+                time.sleep(0.5)
+                x_device_status.click()
+            except:
+                pass
 
-            # Fechar segunda aba
-            WebDriverWait(driver, 30).until(
-                EC.invisibility_of_element_located(loader_locator)
-            )
-            x_segunda_aba = WebDriverWait(driver, 120).until(
-                EC.element_to_be_clickable((By.XPATH, '//*[@id="multiSizeDrawer"]/div[2]/dsp-next-gen-ui-dft-asset-drawer/div/div[1]/div[2]/div[2]/cc-icon')
+            time.sleep(1)
+            
+            # Bloco para voltar à tela principal
+            try:
+                seta_voltar = WebDriverWait(driver, 10).until(
+                    EC.element_to_be_clickable((By.CLASS_NAME, 'cc-drawer__leadingIcon'))
                 )
-            )
-            time.sleep(0.5)
-            x_segunda_aba.click()
+                WebDriverWait(driver, 30).until(EC.invisibility_of_element_located(loader_locator))
+                time.sleep(0.5)
+                seta_voltar.click()
+            except:
+                pass
 
             print(data)
         
         except (TimeoutException, NoSuchElementException) as e:
-            print(f" Erro ao processar SN {sn}: {e}")
+            print(f"Erro ao processar SN {sn}: {e}")
             data[sn] = "Erro na coleta"
             
-    # Finaliza o driver após a conclusão do processo
     driver.quit()
-    
-    return data # Retorna o dicionário com os resultados
+    return data

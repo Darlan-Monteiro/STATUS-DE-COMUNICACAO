@@ -1,5 +1,5 @@
 """
-Código para automação do site RFV usando Selenium.
+Código para automação do site RFV usando Selenium (Versão Chrome).
 O objetivo é iterar sobre uma lista de clientes, selecionar cada um no site,
 navegar até a seção "Área Vitals/Fleet Status" e exportar os dados em formato CSV.
 """
@@ -14,31 +14,56 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-# from webdriver_manager.microsoft import EdgeChromiumDriverManager
 from selenium.common.exceptions import TimeoutException, ElementClickInterceptedException
+
+# Biblioteca que gerencia o driver automaticamente
+from webdriver_manager.chrome import ChromeDriverManager
 
 # ---- ETAPA 2 ----:
 
 def config_navegador():
+
     """ 
-    Função para configurar o navegador Edge com perfil de usuário específico e acessar o site RFV 
+    Função para configurar o Google Chrome com Perfil Persistente.
+    Salva cookies e sessão na pasta 'chrome_perfil_rfv'.
     """
     load_dotenv()
-    caminho_user_rfv = os.getenv('caminho_user_rfv')
     site_rfv = os.getenv('site_rfv')
-    s = Service(r'./msedgedriver.exe')
-    #s = Service(EdgeChromiumDriverManager().install())
-    rfv_automation = webdriver.EdgeOptions()
-    rfv_automation.add_argument(caminho_user_rfv)
-    driver = webdriver.Edge(service=s, options=rfv_automation)
-    driver.get(site_rfv)
+    
+    chrome_options = webdriver.ChromeOptions()
+    
+    # --- CRIA O PERFIL PERSISTENTE ---
+    # Isso cria uma pasta no seu projeto onde o Chrome vai salvar tudo
+    dir_path = os.getcwd()
+    profile_path = os.path.join(dir_path, "chrome_perfil_rfv")
+    chrome_options.add_argument(f"user-data-dir={profile_path}")
+    
+    # Argumentos padrão
+    chrome_options.add_argument("--start-maximized")
+    chrome_options.add_argument("--disable-infobars")
+    chrome_options.add_argument("--disable-search-engine-choice-screen")
+    
+    # Instala/Atualiza driver
+    try:
+        driver_path = ChromeDriverManager().install()
+    except:
+        # Fallback para versão específica se falhar
+        driver_path = ChromeDriverManager(driver_version="142.0.7444.176").install()
+        
+    servico = Service(driver_path)
+    driver = webdriver.Chrome(service=servico, options=chrome_options)
+    
+    try:
+        driver.get(site_rfv)
+    except Exception as e:
+        print(f"Erro ao acessar site: {e}")
+        
     return driver
 
 
 def automacao_rfv():
     """ 
     Função principal para automação no site RFV.
-    O objetivo aqui é iterar sobre a lista de clientes e exportar os dados necessários.
     """
     driver = config_navegador()
     caminho_base_cleinte = os.getenv('base_clientes')
@@ -47,11 +72,9 @@ def automacao_rfv():
     coluna_clientes = 'Clientes'
     clientes = base_clientes[coluna_clientes].to_list()
 
-    # for para iterar sobre a lista de clientes e realizar as ações necessárias no site RFV.
-    # Este bloco tenta localizar e interagir com o dropdown de seleção de clientes no site RFV
+    # for para iterar sobre a lista de clientes
     for cliente in clientes:
         try:
-            
             print(f"\n")
             # Encontra o xpath do dropdown para colocar o cliente
             dropdown_abrir = WebDriverWait(driver, 130).until(
@@ -60,9 +83,9 @@ def automacao_rfv():
             ) 
             dropdown_abrir.click()
             time.sleep(0.3)
-            dropdown_abrir.clear() # Limpa o campo do dropdown para tirar qualquer valor pré-existente
+            dropdown_abrir.clear() 
             print(f"Procurando cliente: {cliente}")
-            dropdown_abrir.send_keys(cliente) # Digita o nome do cliente no dropdown
+            dropdown_abrir.send_keys(cliente) 
             time.sleep(0.3)
             dropdown_abrir.send_keys(Keys.ENTER)
             print(f"Cliente {cliente} processado com sucesso.")
@@ -74,34 +97,31 @@ def automacao_rfv():
             print(f"Ocorreu um erro ao processar o cliente {cliente}: {e}")
             continue
         
-        
-        # Este bloco tenta localizar e interagir com os checkboxes de termos de uso no site RFV.
-        # Só será executado se os termos de uso aparecerem na tela
+        # Checkboxes de termos de uso
         try:
             if True:
-                checkbox__square_superior = WebDriverWait(driver, 10).until(
+                checkbox__square_superior = WebDriverWait(driver, 5).until(
                     EC.element_to_be_clickable((By.CSS_SELECTOR, "label[for='involve-checkbox-0']")
                     )
                 )
                 checkbox__square_superior.click()
                 
-                checkbox__square_inferior = WebDriverWait(driver, 10).until(
+                checkbox__square_inferior = WebDriverWait(driver, 5).until(
                     EC.element_to_be_clickable((By.CSS_SELECTOR, "label[for='involve-checkbox-1']")
                     )
                 )
                 checkbox__square_inferior.click()
-                print("Checkbox de termos de uso clicado com sucesso.")         
                 
-                i_agree_button = WebDriverWait(driver, 10).until(
+                i_agree_button = WebDriverWait(driver, 5).until(
                     EC.element_to_be_clickable((By.XPATH, '/html/body/app/div[1]/app-eula/div/div[3]/button[1]')
                     )
                 )
                 i_agree_button.click()
-                print("Termos de uso aceitos com sucesso.")
+                print("Termos de uso aceitos.")
         except:
             pass
                        
-        # Este bloco tenta navegar até a aba do cliente   
+        # Navegar até a aba do cliente   
         try:
             seta_aba_cliente = WebDriverWait(driver, 130).until(
                 EC.element_to_be_clickable((By.XPATH, '/html/body/app/div[1]/ng-component/sitemapgroup-dashboard/ng-component/breadcrumb/div/div[1]/span[2]')
@@ -112,90 +132,73 @@ def automacao_rfv():
             print(f"Erro ao abrir aba do cliente {cliente}: {e}")
             continue
 
-
-        # Este bloco tenta localizar e clicar na seção "Área Vitals/Fleet Status" no site RFV
+        # Clicar na seção "Área Vitals/Fleet Status"
         try:
-            
             selecionar_menu_opçoes = WebDriverWait(driver, 60).until(
                 EC.element_to_be_clickable((By.XPATH, '/html/body/app/div[1]/ng-component/sitemapgroup-dashboard/ng-component/breadcrumb/div/div[2]/div[1]/breadcrumb-menu/div')
                 )
             )
             selecionar_menu_opçoes.click()
             
-            # Aqui eu estou pegando todos os elementos h3 que aparecem no overlay do menu
             lista_h3 = WebDriverWait(driver, 60).until(
                 EC.presence_of_all_elements_located((By.XPATH, '//div[contains(@id, "cdk-overlay")]/div/div/div//h3')
                 )
             )
             
-            #Loop para encontrar e clicar no elemento correto de Área Vitals ou Fleet Status
             for i, elementos_h3 in enumerate(lista_h3):
                 if "Area Vitals" in elementos_h3.text or "Fleet Status" in elementos_h3.text:
                     elementos_h3.click()
-                    print(f" Área Vitals/Fleet Status encontrada e clicada com sucesso para o cliente {cliente}.")
+                    print(f" Área Vitals/Fleet Status encontrada.")
                     break
     
             driver.find_element(By.TAG_NAME, "body").send_keys(Keys.ESCAPE)
 
         except Exception as e:
-            print(f" Erro ao clicar em Área Vitals/Fleet Status para o cliente {cliente}: {e}\n")
+            print(f" Erro ao clicar em Área Vitals: {e}\n")
             continue
 
-
-        # Este bloco tenta exportar os dados do sistema em formato CSV
+        # Exportar CSV
         try:
-            # Espera o overlay de carregamento desaparecer antes de prosseguir
             WebDriverWait(driver, 15).until_not(
-                EC.presence_of_element_located((By.CLASS_NAME, "cdk-overlay-backdrop")
-                )
+                EC.presence_of_element_located((By.CLASS_NAME, "cdk-overlay-backdrop"))
             )
-        except TimeoutException:
-            print(" O overlay demorou para desaparecer, tentando continuar mesmo assim.")
+        except:
+            pass
 
-
-        # Espera o botão de status do sistema estar clicável
         try:
             system_status = WebDriverWait(driver, 30).until(
                 EC.element_to_be_clickable((By.CLASS_NAME, 'menu-button')
                 )
             )
             system_status.click()
-            print(" Status do sistema clicado com sucesso.")
-        except ElementClickInterceptedException:
-            # Segunda tentativa de clique no status do sistema. O sistema pode demorar a responder
+            print(" Status do sistema clicado.")
+        except Exception as e:
             try:
                 system_status.click()
-                print(" Clique no status do sistema realizado na segunda tentativa.")
-            except Exception as e:
-                print(f" Erro ao tentar clicar novamente no status do sistema: {e}")
+            except:
+                print(f"Não foi possível clicar no status do sistema.")
                 continue
-        except TimeoutException:
-            print(" Não foi possível encontrar o status do sistema.\n")
-            continue
         
-        # Este bloco é para clicar no botão de exportação
         try:
             export = WebDriverWait(driver, 30).until(
                 EC.element_to_be_clickable((By.XPATH, '//system-status-tile-v2//involve-datasource-export//button')
                 )
             )
             export.click()
-            print(" Exportando dados...")
-        except TimeoutException:
-            print(" Não foi possível encontrar o botão de exportação.\n")
+            print("Exportando dados...")
+        except:
+            print("Botão exportar não encontrado.")
             continue
         
-        # Este bloco é para selecionar o formato CSV na exportação
         try:
             csv_button = WebDriverWait(driver, 30).until(
                 EC.element_to_be_clickable((By.XPATH, "//div[contains(text(), 'CSV')]")
                 )
             )
             csv_button.click()
-            print("Formato CSV selecionado com sucesso.")
-        except TimeoutException:
-            print(" Não foi possível encontrar o formato CSV.\n")
+            print("Formato CSV selecionado.")
+        except:
+            print("Opção CSV não encontrada.")
             continue
         
-    # Finaliza o driver após a conclusão do processo
     driver.quit()
