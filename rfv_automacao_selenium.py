@@ -7,19 +7,17 @@ navegar até a seção "Área Vitals/Fleet Status" e exportar os dados em format
 import os
 import time
 import polars as pl
+from pathlib import Path
 from dotenv import load_dotenv
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.common.exceptions import TimeoutException, ElementClickInterceptedException
-
-# Biblioteca que gerencia o driver automaticamente
+from selenium.common.exceptions import TimeoutException
 from webdriver_manager.chrome import ChromeDriverManager
+from selenium.webdriver.support import expected_conditions as EC
 
-# ---- ETAPA 2 ----:
 
 def config_navegador():
 
@@ -29,25 +27,19 @@ def config_navegador():
     """
     load_dotenv()
     site_rfv = os.getenv('site_rfv')
-    
     chrome_options = webdriver.ChromeOptions()
-    
-    # --- CRIA O PERFIL PERSISTENTE ---
-    # Isso cria uma pasta no seu projeto onde o Chrome vai salvar tudo
-    dir_path = os.getcwd()
-    profile_path = os.path.join(dir_path, "chrome_perfil_rfv")
-    chrome_options.add_argument(f"user-data-dir={profile_path}")
+    caminho_base_perfis = Path.home() / ".status_perfis" / "rfv"
+    chrome_options.add_argument(f"user-data-dir={caminho_base_perfis}")
     
     # Argumentos padrão
     chrome_options.add_argument("--start-maximized")
     chrome_options.add_argument("--disable-infobars")
     chrome_options.add_argument("--disable-search-engine-choice-screen")
     
-    # Instala/Atualiza driver
+    # Instala ou atualiza driver
     try:
         driver_path = ChromeDriverManager().install()
     except:
-        # Fallback para versão específica se falhar
         driver_path = ChromeDriverManager(driver_version="142.0.7444.176").install()
         
     servico = Service(driver_path)
@@ -77,7 +69,7 @@ def automacao_rfv():
         try:
             print(f"\n")
             # Encontra o xpath do dropdown para colocar o cliente
-            dropdown_abrir = WebDriverWait(driver, 130).until(
+            dropdown_abrir = WebDriverWait(driver, 300).until(
                 EC.visibility_of_element_located((By.XPATH, '//*[@id="involve-select-0"]/div[1]/input')
                 )
             ) 

@@ -5,19 +5,16 @@ O objetivo é percorrer todas as datas que não foram atualizadas após o proces
 
 import os
 import time
+from pathlib import Path
 from selenium import webdriver
 from dotenv import load_dotenv
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.support.ui import WebDriverWait
+from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException, NoSuchElementException
-
-# Gerenciador automático do Chrome
-from webdriver_manager.chrome import ChromeDriverManager
-
-# ---- ETAPA 4 ----:
 
 def config_navegador(): 
     """ 
@@ -29,15 +26,13 @@ def config_navegador():
     chrome_options = webdriver.ChromeOptions()
     
     # Cria um perfil no chrome para salvar sessão e cookies. gera uma pasta na raiz do projeto
-    dir_path = os.getcwd()
-    profile_path = os.path.join(dir_path, "chrome_perfil_dsp")
-    chrome_options.add_argument(f"user-data-dir={profile_path}")
-
+    caminho_base_perfis = Path.home() / ".robo_perfis" / "dsp"
+    chrome_options.add_argument(f"user-data-dir={caminho_base_perfis}")
     chrome_options.add_argument("--start-maximized")
     chrome_options.add_argument("--disable-infobars")
     chrome_options.add_argument("--disable-search-engine-choice-screen")
 
-    # Instala/Atualiza driver
+    # Instala ou atualiza driver
     try:
         driver_path = ChromeDriverManager().install()
     except:
@@ -46,7 +41,6 @@ def config_navegador():
 
     servico = Service(driver_path)
     driver = webdriver.Chrome(service=servico, options=chrome_options)
-    
     driver.get(site_dsp)
     return driver
 
@@ -63,14 +57,14 @@ def web(sn_lista):
         try:
             print(f"Iniciando busca para: {sn}")
             
-            # Locator do loader (carregamento)
+            # pegar o loader da pag
             loader_locator = (By.TAG_NAME, "dsp-next-gen-ui-loader")
 
             # Espera inicial e limpeza de tela
             WebDriverWait(driver, 30).until(EC.invisibility_of_element_located(loader_locator))
             
-            # Busca segura (evita erro de clique interceptado)
-            busca = WebDriverWait(driver, 120).until(
+            # Campo de busca
+            busca = WebDriverWait(driver, 300).until(
                 EC.element_to_be_clickable((By.CLASS_NAME, 'input-field'))
             )
             
@@ -112,7 +106,7 @@ def web(sn_lista):
                 data[sn] = "Elemento não encontrado"
                 continue
             
-            # Clica na engrenagem (Device Details)
+            # Clica na engrenagem
             engrenagem_device_information = WebDriverWait(driver, 120).until(
                 EC.element_to_be_clickable(
                     (By.CLASS_NAME, 'settingsIconStyle')
@@ -125,7 +119,7 @@ def web(sn_lista):
         
             # Pega a data
             WebDriverWait(driver, 30).until(EC.invisibility_of_element_located(loader_locator))
-            
+            time.sleep(1)
             last_check_in = WebDriverWait(driver, 120).until(
                 EC.element_to_be_clickable((By.XPATH, '//*[@id="device-status"]/div[2]/div[1]/div/div/div[3]/div[1]/span[2]'))
             ).text

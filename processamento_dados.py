@@ -10,12 +10,12 @@ from glob import glob
 from pathlib import Path
 from dotenv import load_dotenv
 
-# ---- ETAPA 3 ----:
-
-
 # Bloco que carrega as variáveis de ambiente do arquivo .env
 load_dotenv()
+parte_relativa = os.getenv('caminho_relativo_ativos')
+pasta_usuario = Path.home()
 caminho_bdrfv = os.getenv('caminho_bdrfv')
+caminho_bdativos = pasta_usuario / parte_relativa
 #caminho_bdativos = os.getenv('caminho_bdativos') 
 caminho_ativosatt = os.getenv('caminho_ativosatt')  
 pasta_destino_rfv = os.getenv('pasta_destino_rfv')

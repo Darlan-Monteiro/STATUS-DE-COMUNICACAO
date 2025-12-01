@@ -9,12 +9,11 @@ from dsp_automacao_selenium import web
 from deletar_arquivos import deletar_arquivos
 from processamento_dados import processar_dados
 from rfv_automacao_selenium import automacao_rfv
-#from baixar_edge_atual import gerenciar_edgedriver
 
 def atualizar_dados():
     """
     Função que executa o fluxo sequencial de atualização.
-    1. Verifica Driver - 2. RFV - 3. Processamento - 4. DSP - 5. Salva Excel.
+    1 - Verifica Driver. 2 - RFV. 3 - Processamento. 4 - DSP. 5 - Salva Excel.
     """
 
     # Inicia a automação para processar os clientes no site RFV
