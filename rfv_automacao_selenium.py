@@ -80,13 +80,11 @@ def automacao_rfv():
             dropdown_abrir.send_keys(cliente) 
             time.sleep(0.3)
             dropdown_abrir.send_keys(Keys.ENTER)
-            print(f"Cliente {cliente} processado com sucesso.")
+           
              
         except TimeoutException:
-            print(f"Não foi possível encontrar o dropdown para o cliente {cliente}.\n")
             continue  
         except Exception as e:
-            print(f"Ocorreu um erro ao processar o cliente {cliente}: {e}")
             continue
         
         # Checkboxes de termos de uso
@@ -109,7 +107,6 @@ def automacao_rfv():
                     )
                 )
                 i_agree_button.click()
-                print("Termos de uso aceitos.")
         except:
             pass
                        
@@ -121,7 +118,6 @@ def automacao_rfv():
             )
             seta_aba_cliente.click()
         except Exception as e:
-            print(f"Erro ao abrir aba do cliente {cliente}: {e}")
             continue
 
         # Clicar na seção "Área Vitals/Fleet Status"
@@ -140,13 +136,11 @@ def automacao_rfv():
             for i, elementos_h3 in enumerate(lista_h3):
                 if "Area Vitals" in elementos_h3.text or "Fleet Status" in elementos_h3.text:
                     elementos_h3.click()
-                    print(f" Área Vitals/Fleet Status encontrada.")
                     break
     
             driver.find_element(By.TAG_NAME, "body").send_keys(Keys.ESCAPE)
 
         except Exception as e:
-            print(f" Erro ao clicar em Área Vitals: {e}\n")
             continue
 
         # Exportar CSV
@@ -163,12 +157,10 @@ def automacao_rfv():
                 )
             )
             system_status.click()
-            print(" Status do sistema clicado.")
         except Exception as e:
             try:
                 system_status.click()
             except:
-                print(f"Não foi possível clicar no status do sistema.")
                 continue
         
         try:
@@ -177,9 +169,7 @@ def automacao_rfv():
                 )
             )
             export.click()
-            print("Exportando dados...")
         except:
-            print("Botão exportar não encontrado.")
             continue
         
         try:

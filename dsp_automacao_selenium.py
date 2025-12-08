@@ -23,7 +23,6 @@ def config_navegador():
     load_dotenv()
     url_base = os.getenv('site_dsp')
     url_ativos = os.getenv('site_dsp_ativos')
-    
     chrome_options = webdriver.ChromeOptions()
     
     # Cria um perfil no chrome para salvar sessão e cookies. gera uma pasta na raiz do projeto
@@ -37,24 +36,16 @@ def config_navegador():
     try:
         driver_path = ChromeDriverManager().install()
     except:
-        print("Falha na instalação automática. Tentando versão forçada...")
         driver_path = ChromeDriverManager(driver_version="142.0.7444.176").install()
 
     servico = Service(driver_path)
     driver = webdriver.Chrome(service=servico, options=chrome_options)
-    
-    
-    print(f"Acessando página inicial: {url_base}")
     driver.get(url_base)
-    
-    
     time.sleep(1) 
-    
-    print(f"Redirecionando para: {url_ativos}")
     driver.get(url_ativos)
     
-    
     return driver
+
 
 def web(sn_lista): 
     """ 
@@ -65,14 +56,12 @@ def web(sn_lista):
     
         
     data = {} 
-    
     for sn in sn_lista:
         try:
             print(f"Iniciando busca para: {sn}")
             
             # pegar o loader da pag
             loader_locator = (By.TAG_NAME, "dsp-next-gen-ui-loader")
-            print("Aguardando carregamento da página...")
 
             # Espera inicial e limpeza de tela
             WebDriverWait(driver, 30).until(EC.invisibility_of_element_located(loader_locator))
@@ -81,14 +70,12 @@ def web(sn_lista):
             busca = WebDriverWait(driver, 300).until(
                 EC.element_to_be_clickable((By.CLASS_NAME, 'input-field'))
             )
-            print("Campo de busca localizado.")
             
             # Garante que o campo está visível e clica
             driver.execute_script("window.scrollTo(0, 0);")
             
             try:
                 busca.click()
-                print("Campo de busca clicado.")
             except:
                 driver.execute_script("arguments[0].click();", busca)
             
@@ -98,7 +85,6 @@ def web(sn_lista):
             busca.send_keys(Keys.DELETE)
             time.sleep(0.5)
             busca.send_keys(sn + Keys.ENTER)
-            print(f"SN {sn} inserido na busca.")
          
             # Espera carregar resultados da tabela
             WebDriverWait(driver, 30).until(EC.invisibility_of_element_located(loader_locator))
@@ -132,7 +118,7 @@ def web(sn_lista):
             )
             
             WebDriverWait(driver, 30).until(EC.invisibility_of_element_located(loader_locator))   
-            time.sleep(1)           
+            time.sleep(0.5)           
             engrenagem_device_information.click()
         
             # Pega a data

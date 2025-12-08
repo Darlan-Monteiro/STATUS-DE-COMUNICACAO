@@ -32,7 +32,7 @@ def ler_base():
     """
     arquivos = sorted(glob(caminho_bdrfv))
     if not arquivos:
-        print("Nenhum arquivo encontrado na pasta especificada.")
+        print("Nenhum arquivo encontrado na pasta especificada")
         return None
 
     lista_df = [] # Lista para armazenar os df lidos
@@ -47,7 +47,7 @@ def ler_base():
             print(f"Erro ao ler o arquivo {arquivo}: {e}")
 
     if not lista_df:
-        print(" Nenhuma base válida foi carregada.")
+        print("Nenhuma base válida foi carregada")
         return None
 
     # retorna todos os df concatenados
@@ -67,7 +67,7 @@ def ler_planilha_ativos():
         return planilha_ativos
     
     except ValueError:
-        print(f"Arquivo {caminho_ativos} não encontrado.")
+        print(f"Arquivo {caminho_ativos} não encontrado")
         return None
     
     
@@ -85,7 +85,7 @@ def processar_dados():
     Move arquivos, lê bases, compara e atualiza a planilha
     """
    
-    print("\n Iniciando o processamento dos dados...")
+    print("\nIniciando o processamento dos dados")
     
     # Bloco que move os arquivos CSV da pasta de downloads para a pasta destino_rfv
     pasta_origem = Path.home() / "Downloads"
@@ -114,7 +114,7 @@ def processar_dados():
         exit()
     
     if coluna_bdconcat not in bases_concat.columns or coluna_bdativos not in ativos.columns: 
-        print("Colunas não encontradas em um dos arquivos.")
+        print("Colunas não encontradas em um dos arquivos")
         exit()
     
     # Bloco para verificar quais assets não estão presentes na coluna NºSÉRIE    
@@ -134,11 +134,11 @@ def processar_dados():
     for asset_name in asset_name_modificado:
         for n_serie in num_series_modificado:
             if asset_name in n_serie:
-                print(f'{asset_name} está presente em NºSÉRIE.')
+                print(f'{asset_name} está presente em NºSÉRIE')
                 break
             
         else:
-            print(f'{asset_name} NÃO está presente em NºSÉRIE.')
+            print(f'{asset_name} NÃO está presente em NºSÉRIE')
             lista_nao_contem.append(asset_name)
      
     # Bloco para atualizar a coluna Data Última Comunicação na planilha de ativos        
@@ -166,10 +166,10 @@ def processar_dados():
                 
     # Bloco para exibir os resultados via print        
     print(ativos[['NºSÉRIE', 'Data Última Comunicação', 'Data Último Envio de Dados']])
-    print("\n\n Assets não atualizados para Data Última Comunicação:")
+    print("\n\nAssets não atualizados para Data Última Comunicação:")
     print(nao_atualizados_ultima_comunicacao)
     print(len(nao_atualizados_ultima_comunicacao)) # quantidade de ativos que não foram atualizados
-    print("\n\n Assets que não contém na lista:")
+    print("\n\nAssets que não contém na lista:")
     print(lista_nao_contem)
     
     # Bloco para salvar a planilha atualizada
