@@ -21,7 +21,8 @@ def config_navegador():
     Função para configurar o Google Chrome com Perfil Persistente (DSP).
     """
     load_dotenv()
-    site_dsp = os.getenv('site_dsp')
+    url_base = os.getenv('site_dsp')
+    url_ativos = os.getenv('site_dsp_ativos')
     
     chrome_options = webdriver.ChromeOptions()
     
@@ -41,7 +42,18 @@ def config_navegador():
 
     servico = Service(driver_path)
     driver = webdriver.Chrome(service=servico, options=chrome_options)
-    driver.get(site_dsp)
+    
+    
+    print(f"Acessando página inicial: {url_base}")
+    driver.get(url_base)
+    
+    
+    time.sleep(1) 
+    
+    print(f"Redirecionando para: {url_ativos}")
+    driver.get(url_ativos)
+    
+    
     return driver
 
 def web(sn_lista): 
@@ -50,6 +62,7 @@ def web(sn_lista):
     Recebe uma lista de SNs e retorna um dicionário com a data da última comunicação.
     """
     driver = config_navegador()
+    
         
     data = {} 
     
@@ -59,6 +72,7 @@ def web(sn_lista):
             
             # pegar o loader da pag
             loader_locator = (By.TAG_NAME, "dsp-next-gen-ui-loader")
+            print("Aguardando carregamento da página...")
 
             # Espera inicial e limpeza de tela
             WebDriverWait(driver, 30).until(EC.invisibility_of_element_located(loader_locator))
@@ -67,20 +81,24 @@ def web(sn_lista):
             busca = WebDriverWait(driver, 300).until(
                 EC.element_to_be_clickable((By.CLASS_NAME, 'input-field'))
             )
+            print("Campo de busca localizado.")
             
             # Garante que o campo está visível e clica
             driver.execute_script("window.scrollTo(0, 0);")
-            time.sleep(1) 
+            
             try:
                 busca.click()
+                print("Campo de busca clicado.")
             except:
                 driver.execute_script("arguments[0].click();", busca)
             
             # Limpa e insere o SN
             busca.send_keys(Keys.CONTROL + "a")
+            time.sleep(0.5)
             busca.send_keys(Keys.DELETE)
             time.sleep(0.5)
             busca.send_keys(sn + Keys.ENTER)
+            print(f"SN {sn} inserido na busca.")
          
             # Espera carregar resultados da tabela
             WebDriverWait(driver, 30).until(EC.invisibility_of_element_located(loader_locator))
@@ -141,7 +159,7 @@ def web(sn_lista):
             except:
                 pass
 
-            time.sleep(1)
+            time.sleep(0.5)
             
             # Bloco para voltar à tela principal
             try:

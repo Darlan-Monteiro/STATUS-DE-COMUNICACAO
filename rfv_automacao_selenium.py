@@ -192,5 +192,6 @@ def automacao_rfv():
         except:
             print("Opção CSV não encontrada.")
             continue
+        time.sleep(1.5)  # Espera o download completar antes de continuar
         
     driver.quit()
